@@ -348,9 +348,9 @@
       animation: heartBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Disliked Icon */
+    /* Disliked Icon — stays white like TikTok (no color change) */
     .action-item.disliked .action-icon-svg svg {
-      stroke: #FFA000;
+      stroke: #FFFFFF;
     }
 
     .action-label {
@@ -649,74 +649,39 @@
       }
     } catch (e) {}
 
-    // REAL, AUTHENTIC NIGERIAN VIRAL POSTS (Real valid X handles and live links)
+    // 24 DIVERSE NIGERIAN VIRAL POSTS — matches scraper.py seed data
     const REAL_VIRAL_POSTS = [
-      {
-        tweet_id: '1728131349079691456',
-        author: 'wizkidayo',
-        caption: 'Afrobeats to the world! London, Paris, New York, Lagos... Thank you for the unconditional love! 🦅🇳🇬 #Morayo',
-        media_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80',
-        x_url: 'https://x.com/wizkidayo/status/1728131349079691456',
-        category: 'Afrobeats',
-        app_likes: 24500,
-        app_dislikes: 120,
-        app_comments_count: 1420
-      },
-      {
-        tweet_id: '1735987123984519168',
-        author: 'TechCabal',
-        caption: 'Lagos startup ecosystem achieves record milestone as fintechs process over $100 Billion in annualized digital transactions. 🚀💳🇳🇬',
-        media_url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=900&auto=format&fit=crop&q=80',
-        x_url: 'https://x.com/TechCabal/status/1735987123984519168',
-        category: 'Tech',
-        app_likes: 8430,
-        app_dislikes: 32,
-        app_comments_count: 280
-      },
-      {
-        tweet_id: '1738592184912839168',
-        author: 'funkeakindele',
-        caption: 'Over 1 Billion Naira grossed in cinemas across Nigeria! History has been made again. Thank you to everyone who bought a ticket! 🎬🍿👑',
-        media_url: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=900&auto=format&fit=crop&q=80',
-        x_url: 'https://x.com/funkeakindele/status/1738592184912839168',
-        category: 'Nollywood',
-        app_likes: 31200,
-        app_dislikes: 84,
-        app_comments_count: 2180
-      },
-      {
-        tweet_id: '1742183921839102938',
-        author: 'channelstv',
-        caption: 'Breaking: Federal Government signs new landmark infrastructure and digital connectivity agreement for Southwest transit lines. 🏛️🚅',
-        media_url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=900&auto=format&fit=crop&q=80',
-        x_url: 'https://x.com/channelstv/status/1742183921839102938',
-        category: 'Politics',
-        app_likes: 5120,
-        app_dislikes: 410,
-        app_comments_count: 890
-      },
-      {
-        tweet_id: '1731298471928471928',
-        author: 'burnaboy',
-        caption: 'Spaceship Entertainment. We took the Grammy, we took the stadiums, and we are just getting started! 🦍🇳🇬🔥',
-        media_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&auto=format&fit=crop&q=80',
-        x_url: 'https://x.com/burnaboy/status/1731298471928471928',
-        category: 'Afrobeats',
-        app_likes: 19800,
-        app_dislikes: 140,
-        app_comments_count: 1120
-      },
-      {
-        tweet_id: '1734918273918293819',
-        author: 'TechpointAfrica',
-        caption: 'Nigerian developers build open-source speech-to-text models for indigenous African languages, unlocking AI for 200M+ native speakers. 🤖🌍',
-        media_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=900&auto=format&fit=crop&q=80',
-        x_url: 'https://x.com/TechpointAfrica/status/1734918273918293819',
-        category: 'Tech',
-        app_likes: 11400,
-        app_dislikes: 22,
-        app_comments_count: 410
-      }
+      // ── AFROBEATS ──
+      { tweet_id: 'afro-wiz-01', author: 'wizkidayo', caption: 'Morayo World Tour — SOLD OUT across 5 continents. London, Lagos, New York, Paris, Tokyo. Afrobeats is no longer alternative. It\'s the main stage. 🦅🌍🇳🇬', media_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/wizkidayo', category: 'Afrobeats', app_likes: 48200, app_dislikes: 230, app_comments_count: 3100 },
+      { tweet_id: 'afro-burna-02', author: 'burnaboy', caption: '65,000 people in Paris singing every word. The African Giant doesn\'t just perform — he CONQUERS. Thank you 🦍🔥 #LoveAndDamini', media_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/burnaboy', category: 'Afrobeats', app_likes: 35800, app_dislikes: 180, app_comments_count: 2400 },
+      { tweet_id: 'afro-davido-03', author: 'davido', caption: 'TIMELESS just went DIAMOND in Africa and 4x PLATINUM in the US. OBO to the world! We started from Omo Baba Olowo, now we are everywhere. 👑🇳🇬💎', media_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/davido', category: 'Afrobeats', app_likes: 42100, app_dislikes: 310, app_comments_count: 2800 },
+      { tweet_id: 'afro-asake-04', author: 'asakemusik', caption: 'From Lamba to the Grammys. Lungu Boy got nominated for Album of the Year. Street music just became world music. Mr Money with the Vibes 🎶💰', media_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/asaborangemusik', category: 'Afrobeats', app_likes: 29400, app_dislikes: 95, app_comments_count: 1600 },
+      { tweet_id: 'afro-rema-05', author: 'heisrema', caption: 'Calm Down spent 60 weeks on the Billboard Hot 100. The new album HEIS is breaking records in 45 countries. Benin City to the universe 🌹🚀', media_url: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/heisrema', category: 'Afrobeats', app_likes: 26700, app_dislikes: 88, app_comments_count: 1350 },
+      { tweet_id: 'afro-tems-06', author: 'temsbaby', caption: 'Two Grammy Awards. Best Global Music Performance AND Best New Artist nomination. Lagos girl did that. Thank you God and thank you family 🕊️✨', media_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/temsbaby', category: 'Afrobeats', app_likes: 38900, app_dislikes: 52, app_comments_count: 2100 },
+
+      // ── NOLLYWOOD ──
+      { tweet_id: 'nolly-funke-01', author: 'funkeakindele', caption: '3.2 BILLION NAIRA at the box office! We just set a new all-time record for Nollywood. Every single cinema in Nigeria was packed. God is faithful! 🎬🍿👑', media_url: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/funkeakindele', category: 'Nollywood', app_likes: 51200, app_dislikes: 110, app_comments_count: 3800 },
+      { tweet_id: 'nolly-gene-02', author: 'GenevieveNnaji1', caption: 'My directorial Netflix Original series premieres globally on September 15th. Shot entirely in Lagos, Calabar, and London. African stories for the world 🌍🎥', media_url: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/GenevieveNnaji1', category: 'Nollywood', app_likes: 22800, app_dislikes: 64, app_comments_count: 1200 },
+      { tweet_id: 'nolly-kunle-03', author: 'kunleafolayan', caption: 'Nigeria officially shortlisted for the Academy Awards (Best International Feature Film). Anikulapo: Rise of the Sorcerer represents Africa at the Oscars 🏆🎞️', media_url: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/kunleafolayan', category: 'Nollywood', app_likes: 33100, app_dislikes: 42, app_comments_count: 1900 },
+      { tweet_id: 'nolly-bella-04', author: 'BellaNaija', caption: 'JUST IN: Nollywood is now the second most-watched film industry on global streaming platforms, surpassing Bollywood in total hours streamed in Q2 2026 📊🇳🇬', media_url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/BellaNaija', category: 'Nollywood', app_likes: 18700, app_dislikes: 98, app_comments_count: 820 },
+      { tweet_id: 'nolly-toyin-05', author: 'toyinabraham', caption: 'My new Showmax Original series Iya Ibadan just hit 10 million streams in 72 hours. The biggest Showmax premiere in Africa ever. Oluwa is involved! 🙏🎬', media_url: 'https://images.unsplash.com/photo-1518834107812-67b0b7c58434?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/toyinabraham', category: 'Nollywood', app_likes: 15400, app_dislikes: 73, app_comments_count: 650 },
+      { tweet_id: 'nolly-cannes-06', author: 'AdesuwaCinema', caption: 'Nigerian cinema shines at Cannes 2026! Three Nollywood films selected for official screening — the most from any African country in festival history 🌴🎬🇳🇬', media_url: 'https://images.unsplash.com/photo-1524712245354-2c4e5e7121c0?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/AdesuwaCinema', category: 'Nollywood', app_likes: 12800, app_dislikes: 31, app_comments_count: 540 },
+
+      // ── TECH ──
+      { tweet_id: 'tech-cabal-01', author: 'TechCabal', caption: 'JUST IN: Nigerian fintechs processed over $120 Billion in digital transactions in H1 2026 alone — more than all of East Africa combined. The Lagos tech ecosystem is unstoppable 🚀💳🇳🇬', media_url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/TechCabal', category: 'Tech', app_likes: 14200, app_dislikes: 45, app_comments_count: 680 },
+      { tweet_id: 'tech-point-02', author: 'TechpointAfrica', caption: 'Nigerian AI startup launches open-source LLM fine-tuned for Yoruba, Igbo, Hausa, and Pidgin. Already processing 2M+ queries/day for healthcare and education chatbots 🤖🌍🇳🇬', media_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/TechpointAfrica', category: 'Tech', app_likes: 19600, app_dislikes: 28, app_comments_count: 920 },
+      { tweet_id: 'tech-pay-03', author: 'paystack', caption: 'We just launched in 5 new African markets. From Lagos to Nairobi, Accra, Dakar, and Kigali — Paystack now powers payments for 600,000+ businesses across the continent 🌍💳', media_url: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/paystack', category: 'Tech', app_likes: 11300, app_dislikes: 19, app_comments_count: 430 },
+      { tweet_id: 'tech-flutter-04', author: 'theflutterwave', caption: 'BREAKING: Flutterwave files for US IPO at $5 Billion valuation, making it the largest African tech IPO in history. San Francisco + Lagos HQ. Africa\'s payments infrastructure going public 📈🦄', media_url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/theflutterwave', category: 'Tech', app_likes: 24500, app_dislikes: 156, app_comments_count: 1800 },
+      { tweet_id: 'tech-cowry-05', author: 'cowrywise', caption: '5 million Nigerians now save and invest through Cowrywise. ₦800 Billion in assets under management. Financial inclusion is not just a buzzword — it\'s our mission 📊💚', media_url: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/cowrywise', category: 'Tech', app_likes: 8700, app_dislikes: 34, app_comments_count: 380 },
+      { tweet_id: 'tech-andela-06', author: 'Andela', caption: 'Over 200,000 African developers now work for global Fortune 500 companies through Andela\'s platform. Nigeria leads with 45% of placements. The continent\'s biggest tech talent export 🌐👨‍💻', media_url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/Andela', category: 'Tech', app_likes: 16200, app_dislikes: 42, app_comments_count: 720 },
+
+      // ── POLITICS ──
+      { tweet_id: 'pol-channels-01', author: 'channelstv', caption: 'BREAKING: National Assembly passes ₦2.8 Trillion Infrastructure Bill — includes Lagos-Ibadan express rail, Abuja metro expansion, and 10 new solar power plants across Northern states 🏛️🚅⚡', media_url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/channelstv', category: 'Politics', app_likes: 8900, app_dislikes: 620, app_comments_count: 1400 },
+      { tweet_id: 'pol-premium-02', author: 'PremiumTimesng', caption: 'FG unveils National Digital Literacy Program — 15 million Nigerian students to receive free tablets loaded with localized AI tutoring software by Q4 2026. ₦450B allocated 📚💻🇳🇬', media_url: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/PremiumTimesng', category: 'Politics', app_likes: 6200, app_dislikes: 340, app_comments_count: 890 },
+      { tweet_id: 'pol-arise-03', author: 'ARISEtv', caption: 'Central Bank of Nigeria reports Naira has stabilized at ₦980/$ after new forex reforms. Foreign reserves hit $42 Billion — highest in 3 years. Economists cautiously optimistic 📈💰', media_url: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/ARISEtv', category: 'Politics', app_likes: 11400, app_dislikes: 890, app_comments_count: 2100 },
+      { tweet_id: 'pol-sahara-04', author: 'SaharaReporters', caption: 'Dangote Refinery now supplies 65% of Nigeria\'s fuel demand locally. Petrol price drops to ₦420/litre. Import dependency at lowest level since independence 🏭⛽🇳🇬', media_url: 'https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/SaharaReporters', category: 'Politics', app_likes: 15600, app_dislikes: 430, app_comments_count: 1800 },
+      { tweet_id: 'pol-tvc-05', author: 'TVCconnect', caption: 'President signs Universal Health Coverage Act into law. 80 million Nigerians to gain access to free primary healthcare by 2027. 2,500 new clinics being built in underserved LGAs 🏥🇳🇬', media_url: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/TVCconnect', category: 'Politics', app_likes: 7800, app_dislikes: 290, app_comments_count: 650 },
+      { tweet_id: 'pol-thisday-06', author: 'THISDAYLIVE', caption: 'JUST IN: Senate approves electronic diaspora voting bill. Over 17 million Nigerians abroad will be able to vote in 2027 elections via biometric-verified digital platform 🗳️🌍', media_url: 'https://images.unsplash.com/photo-1494172961521-33799ddd43a5?w=900&auto=format&fit=crop&q=80', x_url: 'https://x.com/THISDAYLIVE', category: 'Politics', app_likes: 21300, app_dislikes: 180, app_comments_count: 1550 },
     ];
 
     let allPosts = [...REAL_VIRAL_POSTS];
@@ -727,12 +692,22 @@
     let userReactions = {};
 
     let localCommentsMap = {
-      '1728131349079691456': [
-        { author_name: 'DavidoFan99', comment_text: 'Big Wiz forever the greatest! 🦅🔥' },
-        { author_name: 'LagosVibes', comment_text: 'The energy at the show was unreal.' }
+      'afro-wiz-01': [
+        { author_name: 'LagosBoy99', comment_text: 'Big Wiz forever the greatest! Morayo is a masterpiece 🦅🔥' },
+        { author_name: 'NaijaVibes', comment_text: 'The energy at the O2 Arena was unreal. Afrobeats don take over!' },
+        { author_name: 'FCTgyal', comment_text: 'Wizkid no dey miss. Star boy for life ⭐' }
       ],
-      '1735987123984519168': [
-        { author_name: 'DevTola', comment_text: 'Massive milestone for African tech founders!' }
+      'nolly-funke-01': [
+        { author_name: 'NollyFanatic', comment_text: 'Funke Akindele is the GOAT of Nollywood box office 🐐🎬' },
+        { author_name: 'AbujaGirl', comment_text: 'Watched it twice already! Every Nigerian needs to see this.' }
+      ],
+      'tech-cabal-01': [
+        { author_name: 'DevTola', comment_text: 'Massive milestone for African tech founders! Lagos is the new Silicon Valley 🚀' },
+        { author_name: 'CryptoAde', comment_text: 'Nigerian fintech is literally carrying the entire continent right now' }
+      ],
+      'pol-sahara-04': [
+        { author_name: 'LagosDriver', comment_text: 'Finally petrol price is coming down! Danborante refinery is a game changer ⛽' },
+        { author_name: 'EcoNigeria', comment_text: 'This is what self-sufficiency looks like. Import dependency needs to end.' }
       ]
     };
 
