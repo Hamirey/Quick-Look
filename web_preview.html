@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quick Look - Viral News Feed</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #000;
+      color: #fff;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Mobile Container Frame for Desktop View */
+    .app-viewport {
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      max-height: 920px;
+      position: relative;
+      background: #0d0e12;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+    }
+
+    @media (min-width: 500px) {
+      .app-viewport {
+        border-radius: 36px;
+        height: 94vh;
+        border: 4px solid #222;
+      }
+    }
+
+    /* Vertical Feed Container */
+    .feed-container {
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .feed-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Post Card Item */
+    .post-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d0e12;
+      overflow: hidden;
+    }
+
+    .media-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.85) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Top Floating App Header */
+    .app-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+      padding: 16px 16px 10px 16px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+      pointer-events: auto;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .app-brand-badge {
+      background: #E50914;
+      border-radius: 8px;
+      padding: 4px 6px;
+      font-size: 14px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .icon-btn {
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Category Filter Pills */
+    .category-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .category-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .cat-pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .cat-pill.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+      box-shadow: 0 0 12px rgba(255,255,255,0.4);
+    }
+
+    /* Bottom-Left Overlay Content */
+    .post-content {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 84px;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .category-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      width: fit-content;
+      backdrop-filter: blur(8px);
+    }
+    .tag-afrobeats { background: rgba(255, 122, 0, 0.25); border: 1px solid #FF7A00; color: #FF7A00; }
+    .tag-nollywood { background: rgba(224, 64, 251, 0.25); border: 1px solid #E040FB; color: #E040FB; }
+    .tag-tech { background: rgba(0, 229, 255, 0.25); border: 1px solid #00E5FF; color: #00E5FF; }
+    .tag-politics { background: rgba(0, 230, 118, 0.25); border: 1px solid #00E676; color: #00E676; }
+
+    .post-author {
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      cursor: pointer;
+    }
+    .verified-icon {
+      color: #1D9BF0;
+      font-size: 14px;
+    }
+    .post-caption {
+      font-size: 13.5px;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .post-caption.expanded {
+      -webkit-line-clamp: unset;
+    }
+    .thread-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      width: fit-content;
+      margin-top: 4px;
+      backdrop-filter: blur(6px);
+      transition: all 0.2s;
+    }
+    .thread-link-btn:hover {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+    }
+
+    /* Right Action Toolbar */
+    .action-toolbar {
+      position: absolute;
+      right: 12px;
+      bottom: 24px;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .action-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .action-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .action-icon:hover {
+      transform: scale(1.15);
+    }
+    .action-icon.liked {
+      color: #FF2D55;
+      animation: pulse 0.3s ease-in-out;
+    }
+    .action-icon.disliked {
+      color: #FFA000;
+    }
+    .action-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+
+    /* Comments Modal Bottom Sheet */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .comments-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 70%;
+      background: #16181F;
+      border-radius: 24px 24px 0 0;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    .comments-sheet.open {
+      transform: translateY(0);
+    }
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin: 10px auto 6px;
+    }
+    .sheet-header {
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-weight: 700;
+    }
+    .comments-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .comment-item {
+      display: flex;
+      gap: 12px;
+    }
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #4F46E5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .comment-body {
+      flex: 1;
+    }
+    .comment-author {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 2px;
+    }
+    .comment-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.35;
+    }
+    .comment-input-bar {
+      padding: 12px 16px;
+      background: #1E2029;
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .comment-input {
+      flex: 1;
+      background: #2C2F3E;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 16px;
+      color: #fff;
+      font-size: 13.5px;
+      outline: none;
+    }
+    .send-btn {
+      background: #E50914;
+      border: none;
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Fallback quote card */
+    .quote-card-body {
+      padding: 36px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: radial-gradient(circle, #1e2230 0%, #0d0e12 100%);
+    }
+    .quote-icon {
+      font-size: 48px;
+      opacity: 0.3;
+      margin-bottom: 16px;
+    }
+    .quote-title {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-viewport">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="app-brand">
+          <span class="app-brand-badge">⚡</span>
+          <span>Quick Look</span>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" onclick="loadPosts()" title="Refresh Feed">🔄</button>
+          <button class="icon-btn" onclick="alert('Google Play UGC Compliance Policy: Zero tolerance for objectionable content. Tap Safety shield on any post to report or block.')" title="Safety Policy">🛡️</button>
+        </div>
+      </div>
+      <!-- Category Pills -->
+      <nav class="category-bar">
+        <button class="cat-pill active" onclick="filterCategory('All', this)">All</button>
+        <button class="cat-pill" onclick="filterCategory('Afrobeats', this)">Afrobeats</button>
+        <button class="cat-pill" onclick="filterCategory('Nollywood', this)">Nollywood</button>
+        <button class="cat-pill" onclick="filterCategory('Tech', this)">Tech</button>
+        <button class="cat-pill" onclick="filterCategory('Politics', this)">Politics</button>
+      </nav>
+    </header>
+
+    <!-- Vertical Swiping Feed Container -->
+    <main class="feed-container" id="feed"></main>
+
+    <!-- Comments Sheet Overlay -->
+    <div class="modal-overlay" id="commentsOverlay" onclick="closeComments()"></div>
+    <div class="comments-sheet" id="commentsSheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <span id="commentsCountHeader">0 Comments</span>
+        <button class="icon-btn" style="width:28px;height:28px;" onclick="closeComments()">✕</button>
+      </div>
+      <div class="comments-list" id="commentsList"></div>
+      <div class="comment-input-bar">
+        <input type="text" id="commentInput" class="comment-input" placeholder="Add a comment..." onkeydown="if(event.key==='Enter') submitComment()">
+        <button class="send-btn" onclick="submitComment()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Supabase Configuration
+    const SUPABASE_URL = "https://udhrvyndhdffivyxnzdf.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkaHJ2eW5kaGRmZml2eXhuemRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNzk0NDUsImV4cCI6MjEwMzg1NTQ0NX0.04fezS3pL4ih7JQEmyW1yFuowYNbmqtka-xOE_zj1Q0";
+
+    const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    let allPosts = [];
+    let currentCategory = 'All';
+    let activeTweetId = null;
+
+    // Fallback Mock Posts
+    const MOCK_POSTS = [
+      {
+        tweet_id: '1829000000000000001',
+        author: 'WizkidSource',
+        caption: 'Wizkid shutdown London with a surprise performance! The entire stadium went crazy. 🔥🇳🇬 #AfrobeatsToTheWorld',
+        media_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80',
+        x_url: 'https://x.com/WizkidSource/status/1829000000000000001',
+        category: 'Afrobeats',
+        app_likes: 2430,
+        app_dislikes: 42,
+        app_comments_count: 312
+      },
+      {
+        tweet_id: '1829000000000000002',
+        author: 'TechCabal',
+        caption: 'Lagos-based AI startup raises $15M Series A to build localized language models for African dialects. 🚀💡',
+        media_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+        x_url: 'https://x.com/TechCabal/status/1829000000000000002',
+        category: 'Tech',
+        app_likes: 1890,
+        app_dislikes: 15,
+        app_comments_count: 88
+      },
+      {
+        tweet_id: '1829000000000000003',
+        author: 'NollywoodUpdate',
+        caption: 'Funke Akindele breaks another box office record! Over 1.5 Billion Naira grossed in cinemas. 🎬🍿',
+        media_url: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80',
+        x_url: 'https://x.com/NollywoodUpdate/status/1829000000000000003',
+        category: 'Nollywood',
+        app_likes: 3540,
+        app_dislikes: 21,
+        app_comments_count: 420
+      },
+      {
+        tweet_id: '1829000000000000004',
+        author: 'ChannelsTV',
+        caption: 'Breaking: National Assembly passes new comprehensive digital economy & cybersecurity regulation bill. 🏛️',
+        media_url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800&q=80',
+        x_url: 'https://x.com/ChannelsTV/status/1829000000000000004',
+        category: 'Politics',
+        app_likes: 940,
+        app_dislikes: 120,
+        app_comments_count: 260
+      }
+    ];
+
+    async function loadPosts() {
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#fff;">Loading viral feed...</div>';
+
+      try {
+        if (supabase) {
+          const { data, error } = await supabase.from('viral_tweets').select('*').order('created_at', { ascending: false });
+          if (!error && data && data.length > 0) {
+            allPosts = data;
+          } else {
+            allPosts = MOCK_POSTS;
+          }
+        } else {
+          allPosts = MOCK_POSTS;
+        }
+      } catch (err) {
+        console.log('Using mock posts:', err);
+        allPosts = MOCK_POSTS;
+      }
+
+      renderFeed();
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '';
+
+      const filtered = currentCategory === 'All' 
+        ? allPosts 
+        : allPosts.filter(p => p.category && p.category.toLowerCase() === currentCategory.toLowerCase());
+
+      if (filtered.length === 0) {
+        feed.innerHTML = `<div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,0.6);">
+          <div style="font-size:40px;">🌍</div>
+          <div>No viral ${currentCategory} news right now.</div>
+          <button class="cat-pill active" onclick="filterCategory('All', document.querySelector('.cat-pill'))">View All News</button>
+        </div>`;
+        return;
+      }
+
+      filtered.forEach(post => {
+        const card = document.createElement('div');
+        card.className = 'post-card';
+        card.id = `post-${post.tweet_id}`;
+
+        const catClass = `tag-${(post.category || 'afrobeats').toLowerCase()}`;
+        const canonicalX = post.x_url || `https://x.com/${(post.author||'').replace('@','')}/status/${post.tweet_id}`;
+
+        card.innerHTML = `
+          ${post.media_url ? `
+            <img class="media-layer" src="${post.media_url}" alt="Viral media" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="quote-card-body" style="display:none;position:absolute;width:100%;height:100%;">
+              <div class="quote-icon">❝</div>
+              <div class="quote-title">${post.caption || 'Viral Nigerian Update'}</div>
+            </div>
+          ` : `
+            <div class="quote-card-body">
+              <div class="quote-icon">❝</div>
+              <div class="quote-title">${post.caption || 'Viral Nigerian Update'}</div>
+            </div>
+          `}
+
+          <div class="gradient-overlay"></div>
+
+          <!-- Bottom Left Info -->
+          <div class="post-content">
+            <div class="category-tag ${catClass}">● ${post.category || 'Trending'}</div>
+            <div class="post-author" onclick="window.open('${canonicalX}', '_blank')">
+              ${post.author && post.author.startsWith('@') ? post.author : '@' + (post.author || 'Creator')}
+              <span class="verified-icon">✓</span>
+            </div>
+            <div class="post-caption" onclick="this.classList.toggle('expanded')">${post.caption || ''}</div>
+            <a href="${canonicalX}" target="_blank" class="thread-link-btn">🔗 View thread on X</a>
+          </div>
+
+          <!-- Right Action Toolbar -->
+          <div class="action-toolbar">
+            <div class="action-item" onclick="toggleLike('${post.tweet_id}', this)">
+              <div class="action-icon">❤️</div>
+              <span class="action-label" id="likes-${post.tweet_id}">${post.app_likes || 0}</span>
+            </div>
+            <div class="action-item" onclick="toggleDislike('${post.tweet_id}', this)">
+              <div class="action-icon">👎</div>
+              <span class="action-label" id="dislikes-${post.tweet_id}">${post.app_dislikes || 0}</span>
+            </div>
+            <div class="action-item" onclick="openComments('${post.tweet_id}')">
+              <div class="action-icon">💬</div>
+              <span class="action-label">${post.app_comments_count || 0}</span>
+            </div>
+            <div class="action-item" onclick="sharePost('${escape(post.caption || '')}', '${canonicalX}')">
+              <div class="action-icon">↗️</div>
+              <span class="action-label">Share</span>
+            </div>
+            <div class="action-item" onclick="reportOrBlock('${post.tweet_id}', '${post.author}')">
+              <div class="action-icon">🛡️</div>
+              <span class="action-label">Safety</span>
+            </div>
+          </div>
+        `;
+
+        feed.appendChild(card);
+      });
+    }
+
+    function filterCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      renderFeed();
+    }
+
+    function toggleLike(tweetId, el) {
+      const icon = el.querySelector('.action-icon');
+      const label = el.querySelector('.action-label');
+      let count = parseInt(label.innerText) || 0;
+
+      if (icon.classList.contains('liked')) {
+        icon.classList.remove('liked');
+        count = Math.max(0, count - 1);
+      } else {
+        icon.classList.add('liked');
+        count += 1;
+      }
+      label.innerText = count;
+
+      if (supabase) {
+        supabase.from('viral_tweets').update({ app_likes: count }).eq('tweet_id', tweetId);
+      }
+    }
+
+    function toggleDislike(tweetId, el) {
+      const icon = el.querySelector('.action-icon');
+      const label = el.querySelector('.action-label');
+      let count = parseInt(label.innerText) || 0;
+
+      if (icon.classList.contains('disliked')) {
+        icon.classList.remove('disliked');
+        count = Math.max(0, count - 1);
+      } else {
+        icon.classList.add('disliked');
+        count += 1;
+      }
+      label.innerText = count;
+
+      if (supabase) {
+        supabase.from('viral_tweets').update({ app_dislikes: count }).eq('tweet_id', tweetId);
+      }
+    }
+
+    function sharePost(caption, url) {
+      const text = `🔥 *Viral on Quick Look:*\n\n"${unescape(caption)}"\n\n👉 Read discussion on X:\n${url}`;
+      if (navigator.share) {
+        navigator.share({ title: 'Quick Look Viral News', text: text });
+      } else {
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
+      }
+    }
+
+    function reportOrBlock(tweetId, author) {
+      const action = prompt(`Google Play UGC Moderation Options for @${author}:\n\n1. Type "report" to submit a content report\n2. Type "block" to block @${author} from your feed`);
+      if (action && action.toLowerCase().trim() === 'report') {
+        const reason = prompt('Select reason: Hate Speech, Harassment, Misinformation, Graphic Content, Spam:');
+        if (reason) {
+          if (supabase) {
+            supabase.from('content_reports').insert({ tweet_id: tweetId, reason: reason, status: 'pending' });
+          }
+          alert('Thank you. Content reported for review.');
+        }
+      } else if (action && action.toLowerCase().trim() === 'block') {
+        if (supabase) {
+          supabase.from('blocked_users').insert({ blocked_handle: author });
+        }
+        allPosts = allPosts.filter(p => p.author !== author);
+        renderFeed();
+        alert(`@${author} has been blocked and removed from your feed.`);
+      }
+    }
+
+    // Comments Modal Logic
+    async function openComments(tweetId) {
+      activeTweetId = tweetId;
+      document.getElementById('commentsOverlay').classList.add('open');
+      document.getElementById('commentsSheet').classList.add('open');
+      const list = document.getElementById('commentsList');
+      list.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">Loading comments...</div>';
+
+      let comments = [];
+      if (supabase) {
+        const { data } = await supabase.from('app_comments').select('*').eq('tweet_id', tweetId).order('created_at', { ascending: true });
+        if (data) comments = data;
+      }
+
+      if (comments.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">
+          <div style="font-size:32px;margin-bottom:8px;">💬</div>
+          <div>No comments yet. Be the first to join the conversation!</div>
+        </div>`;
+      } else {
+        list.innerHTML = '';
+        comments.forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'comment-item';
+          item.innerHTML = `
+            <div class="comment-avatar">${(c.author_name || 'A')[0].toUpperCase()}</div>
+            <div class="comment-body">
+              <div class="comment-author">${c.author_name || 'Anonymous'}</div>
+              <div class="comment-text">${c.comment_text}</div>
+            </div>
+          `;
+          list.appendChild(item);
+        });
+      }
+      document.getElementById('commentsCountHeader').innerText = `${comments.length} Comments`;
+    }
+
+    function closeComments() {
+      document.getElementById('commentsOverlay').classList.remove('open');
+      document.getElementById('commentsSheet').classList.remove('open');
+    }
+
+    async function submitComment() {
+      const input = document.getElementById('commentInput');
+      const text = input.value.trim();
+      if (!text || !activeTweetId) return;
+
+      const newComment = {
+        tweet_id: activeTweetId,
+        author_name: 'GuestUser',
+        comment_text: text
+      };
+
+      if (supabase) {
+        await supabase.from('app_comments').insert(newComment);
+      }
+
+      input.value = '';
+      openComments(activeTweetId);
+    }
+
+    // Initial Load
+    window.addEventListener('DOMContentLoaded', loadPosts);
+  </script>
+</body>
+</html>
