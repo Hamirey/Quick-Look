@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Quick Look - Premium Viral Feed</title>
+  <title>Quick Look - Viral News</title>
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,15 +13,14 @@
   
   <style>
     :root {
-      --bg-dark: #000000;
-      --card-bg: #090a0f;
-      --surface-glass: rgba(18, 20, 29, 0.75);
-      --border-glass: rgba(255, 255, 255, 0.12);
-      --accent-red: #FF2D55;
-      --accent-blue: #1D9BF0;
-      --accent-orange: #FF9500;
+      --bg-black: #000000;
+      --card-bg: #07080a;
+      --tiktok-green: #00E676;
+      --tiktok-green-glow: rgba(0, 230, 118, 0.4);
+      --tiktok-green-subtle: rgba(0, 230, 118, 0.15);
+      --border-hollow: rgba(255, 255, 255, 0.28);
       --text-main: #FFFFFF;
-      --text-sub: rgba(255, 255, 255, 0.72);
+      --text-sub: rgba(255, 255, 255, 0.8);
       --text-dim: rgba(255, 255, 255, 0.45);
     }
 
@@ -35,7 +34,7 @@
     
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at center, #0e1017 0%, #000000 100%);
+      background: #020305;
       color: var(--text-main);
       height: 100vh;
       width: 100vw;
@@ -45,14 +44,14 @@
       align-items: center;
     }
 
-    /* Cinematic Mobile Container */
+    /* TikTok-Style Phone Viewport Frame */
     .app-viewport {
       width: 100%;
       max-width: 420px;
       height: 100%;
       max-height: 890px;
       position: relative;
-      background: var(--card-bg);
+      background: var(--bg-black);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -60,22 +59,22 @@
 
     @media (min-width: 480px) {
       .app-viewport {
-        border-radius: 36px;
+        border-radius: 34px;
         height: 94vh;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.98), 0 0 1px 1px rgba(0, 230, 118, 0.15);
       }
     }
 
-    /* Top Floating Header with Frosted Glass */
+    /* Top Floating Header (Clean - Shield removed) */
     .app-header {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       z-index: 20;
-      padding: 16px 16px 12px 16px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 75%, transparent 100%);
+      padding: 16px 16px 10px 16px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 75%, transparent 100%);
       pointer-events: auto;
     }
     
@@ -83,7 +82,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     
     .app-brand {
@@ -97,43 +96,37 @@
     }
     
     .app-brand-badge {
-      background: linear-gradient(135deg, #FF2D55 0%, #FF5E3A 100%);
+      background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
       border-radius: 9px;
-      padding: 4px 7px;
-      font-size: 13px;
-      box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4);
+      padding: 3px 6px;
+      font-size: 12px;
+      box-shadow: 0 2px 10px var(--tiktok-green-glow);
     }
     
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .icon-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(12px);
+    .refresh-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-hollow);
       color: #fff;
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
-      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      font-size: 14px;
+      transition: all 0.2s;
     }
-    
-    .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.22);
-      transform: scale(1.06);
+    .refresh-btn:hover {
+      background: rgba(0, 230, 118, 0.2);
+      border-color: var(--tiktok-green);
+      transform: rotate(45deg);
     }
 
-    /* Minimalist Unified Category Pills */
+    /* Minimalist Category Filter Pills with Green Glow */
     .category-bar {
       display: flex;
-      gap: 6px;
+      gap: 7px;
       overflow-x: auto;
       scrollbar-width: none;
       padding-bottom: 2px;
@@ -142,28 +135,28 @@
     
     .cat-pill {
       padding: 6px 14px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
       color: var(--text-sub);
       font-size: 12.5px;
       font-weight: 600;
       letter-spacing: -0.2px;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: all 0.2s ease;
     }
     
     .cat-pill.active {
-      background: #FFFFFF;
+      background: var(--tiktok-green);
       color: #000000;
-      border-color: #FFFFFF;
-      font-weight: 700;
-      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.35);
+      border-color: var(--tiktok-green);
+      font-weight: 800;
+      box-shadow: 0 2px 14px var(--tiktok-green-glow);
     }
 
-    /* Vertical Swiping Feed Container */
+    /* Vertical Feed Container */
     .feed-container {
       width: 100%;
       height: 100%;
@@ -185,7 +178,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #06070a;
+      background: var(--bg-black);
       overflow: hidden;
     }
 
@@ -197,10 +190,10 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
-      filter: brightness(0.92);
+      filter: brightness(0.95);
     }
 
-    /* Elegant Vignette Overlay */
+    /* Vignette Gradient */
     .gradient-overlay {
       position: absolute;
       top: 0;
@@ -209,7 +202,7 @@
       height: 100%;
       background: linear-gradient(
         180deg,
-        rgba(0, 0, 0, 0.7) 0%,
+        rgba(0, 0, 0, 0.65) 0%,
         rgba(0, 0, 0, 0.05) 30%,
         rgba(0, 0, 0, 0.15) 55%,
         rgba(0, 0, 0, 0.92) 100%
@@ -218,7 +211,7 @@
       pointer-events: none;
     }
 
-    /* Bottom-Left Unified Glass Info */
+    /* Bottom-Left Overlay Content */
     .post-content {
       position: absolute;
       bottom: 24px;
@@ -235,23 +228,22 @@
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.4px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
       width: fit-content;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(12px);
-      color: #fff;
+      background: var(--tiktok-green-subtle);
+      border: 1px solid rgba(0, 230, 118, 0.4);
+      color: var(--tiktok-green);
     }
     
     .badge-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
-      background: #FF2D55;
+      background: var(--tiktok-green);
     }
 
     .post-author {
@@ -260,20 +252,20 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.9);
       cursor: pointer;
       color: #fff;
     }
     
     .verified-icon {
-      color: var(--accent-blue);
+      color: var(--tiktok-green);
       font-size: 13px;
     }
 
     .post-caption {
       font-size: 13.5px;
       line-height: 1.45;
-      color: rgba(255, 255, 255, 0.94);
+      color: rgba(255, 255, 255, 0.95);
       text-shadow: 0 1px 4px rgba(0,0,0,0.9);
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -289,7 +281,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.16);
       padding: 5px 11px;
       border-radius: 8px;
@@ -303,11 +295,12 @@
       transition: all 0.2s;
     }
     .thread-link-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: var(--tiktok-green-subtle);
+      border-color: var(--tiktok-green);
       color: #fff;
     }
 
-    /* Right Action Toolbar */
+    /* Right Action Toolbar with HOLLOW Buttons */
     .action-toolbar {
       position: absolute;
       right: 12px;
@@ -328,39 +321,43 @@
       position: relative;
     }
 
+    /* Pure Hollow Reaction Icons */
     .action-icon {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: rgba(18, 20, 28, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(16px);
+      background: transparent;
+      border: 1.8px solid var(--border-hollow);
+      backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 19px;
-      color: #fff;
-      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      font-size: 18px;
+      color: #FFFFFF;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .action-icon:hover {
       transform: scale(1.12);
-      background: rgba(28, 32, 46, 0.85);
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
     }
     
+    /* Active Liked State (Vibrant Green Glow) */
     .action-icon.liked {
-      color: #FF2D55;
-      background: rgba(255, 45, 85, 0.25);
-      border-color: #FF2D55;
-      animation: heartPulse 0.35s ease-in-out;
+      color: var(--tiktok-green);
+      border-color: var(--tiktok-green);
+      background: var(--tiktok-green-subtle);
+      box-shadow: 0 0 14px var(--tiktok-green-glow);
+      animation: heartPulse 0.3s ease-in-out;
     }
     
+    /* Active Disliked State */
     .action-icon.disliked {
       color: #FFA000;
-      background: rgba(255, 160, 0, 0.22);
       border-color: #FFA000;
+      background: rgba(255, 160, 0, 0.15);
+      box-shadow: 0 0 12px rgba(255, 160, 0, 0.4);
     }
 
     .action-label {
@@ -373,31 +370,31 @@
 
     @keyframes heartPulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.35); }
+      50% { transform: scale(1.3); }
       100% { transform: scale(1); }
     }
 
-    /* Safety Shield Dropdown Sub-Buttons (Animated Glass Popover) */
+    /* Safety Shield Dropdown Sub-Buttons */
     .safety-menu-popover {
       position: absolute;
-      right: 54px;
-      top: -20px;
-      background: rgba(18, 20, 30, 0.95);
+      right: 52px;
+      top: -16px;
+      background: rgba(14, 16, 22, 0.96);
       border: 1px solid rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(20px);
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 6px;
       display: flex;
       flex-direction: column;
       gap: 4px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.9);
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.85) translateX(10px);
+      transform: scale(0.85) translateX(8px);
       transform-origin: right center;
-      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
       z-index: 30;
-      width: 140px;
+      width: 135px;
     }
     
     .safety-menu-popover.open {
@@ -411,7 +408,7 @@
       align-items: center;
       gap: 8px;
       padding: 8px 10px;
-      border-radius: 10px;
+      border-radius: 9px;
       background: transparent;
       border: none;
       color: #fff;
@@ -437,12 +434,13 @@
       justify-content: center;
       height: 100%;
       width: 100%;
-      background: radial-gradient(circle at center, #151824 0%, #07080c 100%);
+      background: radial-gradient(circle at center, #101520 0%, #030406 100%);
     }
     .quote-icon {
       font-size: 40px;
-      opacity: 0.25;
+      opacity: 0.3;
       margin-bottom: 12px;
+      color: var(--tiktok-green);
     }
     .quote-title {
       font-size: 16.5px;
@@ -458,7 +456,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
       z-index: 40;
       opacity: 0;
@@ -476,14 +474,14 @@
       left: 0;
       width: 100%;
       height: 72%;
-      background: #12141C;
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 28px 28px 0 0;
+      background: #0D1017;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 26px 26px 0 0;
       z-index: 45;
       display: flex;
       flex-direction: column;
       transform: translateY(100%);
-      transition: transform 0.32s cubic-bezier(0.1, 0.9, 0.2, 1);
+      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
     .comments-sheet.open {
       transform: translateY(0);
@@ -492,7 +490,7 @@
     .sheet-handle {
       width: 36px;
       height: 4px;
-      background: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.25);
       border-radius: 2px;
       margin: 10px auto 4px;
     }
@@ -525,12 +523,13 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+      color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 12.5px;
+      font-weight: 800;
+      font-size: 12px;
       flex-shrink: 0;
     }
     
@@ -547,13 +546,13 @@
     
     .comment-text {
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.78);
+      color: rgba(255, 255, 255, 0.8);
       line-height: 1.35;
     }
     
     .comment-input-bar {
       padding: 12px 16px;
-      background: #181B26;
+      background: #131722;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       gap: 10px;
@@ -561,8 +560,8 @@
     
     .comment-input {
       flex: 1;
-      background: #242938;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #1C2230;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 20px;
       padding: 10px 16px;
       color: #fff;
@@ -570,13 +569,13 @@
       outline: none;
     }
     .comment-input:focus {
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: var(--tiktok-green);
     }
     
     .send-btn {
-      background: var(--accent-red);
+      background: var(--tiktok-green);
       border: none;
-      color: #fff;
+      color: #000;
       width: 38px;
       height: 38px;
       border-radius: 50%;
@@ -585,13 +584,14 @@
       align-items: center;
       justify-content: center;
       font-size: 14px;
+      font-weight: bold;
       transition: transform 0.15s;
     }
     .send-btn:hover {
       transform: scale(1.08);
     }
 
-    /* Full Modal Report Dialog */
+    /* Modal Report Dialog */
     .report-modal {
       position: absolute;
       top: 50%;
@@ -599,7 +599,7 @@
       transform: translate(-50%, -50%) scale(0.9);
       width: 90%;
       max-width: 340px;
-      background: #161824;
+      background: #141722;
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 20px;
       padding: 20px;
@@ -607,7 +607,7 @@
       opacity: 0;
       pointer-events: none;
       transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.95);
     }
     .report-modal.open {
       opacity: 1;
@@ -659,19 +659,16 @@
 <body>
 
   <div class="app-viewport">
-    <!-- Top Header -->
+    <!-- Top Header (No shield) -->
     <header class="app-header">
       <div class="header-top">
         <div class="app-brand">
           <span class="app-brand-badge">⚡</span>
           <span>Quick Look</span>
         </div>
-        <div class="header-actions">
-          <button class="icon-btn" onclick="loadPosts()" title="Refresh Feed">🔄</button>
-          <button class="icon-btn" onclick="showSafetyGuidelines()" title="Safety Guidelines">🛡️</button>
-        </div>
+        <button class="refresh-btn" onclick="loadPosts()" title="Refresh Feed">🔄</button>
       </div>
-      <!-- Category Filter Pills -->
+      <!-- Unified Category Pills -->
       <nav class="category-bar">
         <button class="cat-pill active" onclick="setCategory('All', this)">All News</button>
         <button class="cat-pill" onclick="setCategory('Afrobeats', this)">🎵 Afrobeats</button>
@@ -690,7 +687,7 @@
       <div class="sheet-handle"></div>
       <div class="sheet-header">
         <span id="commentsCountHeader">Comments</span>
-        <button class="icon-btn" style="width:28px;height:28px;" onclick="closeComments()">✕</button>
+        <button class="refresh-btn" style="width:28px;height:28px;font-size:11px;" onclick="closeComments()">✕</button>
       </div>
       <div class="comments-list" id="commentsList"></div>
       <div class="comment-input-bar">
@@ -726,11 +723,9 @@
       if (window.supabase && typeof window.supabase.createClient === 'function') {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
-    } catch (e) {
-      console.warn('Supabase initialization note:', e);
-    }
+    } catch (e) {}
 
-    // Rich, Modern 2026 Viral Posts Dataset
+    // Rich 2026 Viral Posts Dataset
     const VIRAL_SEED_POSTS = [
       {
         tweet_id: '1829000000000000001',
@@ -779,7 +774,7 @@
       {
         tweet_id: '1829000000000000005',
         author: 'burnaboy',
-        caption: 'Giant of Africa headline show in Paris sold out in under 15 minutes. We keep taking the African sound to legendary heights. 🦍🔥',
+        caption: 'Giant of Africa headline stadium show in Paris sold out in under 15 minutes. Taking African music to uncharted heights. 🦍🔥',
         media_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&auto=format&fit=crop&q=80',
         x_url: 'https://x.com/burnaboy/status/1829000000000000005',
         category: 'Afrobeats',
@@ -805,6 +800,8 @@
     let activeTweetId = null;
     let reportingTweetId = null;
     let blockedAuthors = new Set();
+    // Track user reaction state per tweet: { [tweetId]: 'like' | 'dislike' | null }
+    let userReactions = {};
 
     let localCommentsMap = {
       '1829000000000000001': [
@@ -874,6 +871,7 @@
 
         const canonicalX = post.x_url || `https://x.com/${(post.author || '').replace('@','')}/status/${post.tweet_id}`;
         const authorHandle = post.author && post.author.startsWith('@') ? post.author : '@' + (post.author || 'Creator');
+        const reaction = userReactions[post.tweet_id] || null;
 
         card.innerHTML = `
           ${post.media_url ? `
@@ -905,28 +903,35 @@
             <a href="${canonicalX}" target="_blank" class="thread-link-btn">🔗 Read thread on X</a>
           </div>
 
-          <!-- Right Action Toolbar -->
+          <!-- Right Action Toolbar (HOLLOW BUTTONS) -->
           <div class="action-toolbar">
+            <!-- Like Button -->
             <div class="action-item" onclick="handleLike('${post.tweet_id}', this)">
-              <div class="action-icon">❤️</div>
+              <div class="action-icon hollow-btn ${reaction === 'like' ? 'liked' : ''}" id="like-icon-${post.tweet_id}">♡</div>
               <span class="action-label" id="like-count-${post.tweet_id}">${formatNumber(post.app_likes || 0)}</span>
             </div>
+
+            <!-- Dislike Button -->
             <div class="action-item" onclick="handleDislike('${post.tweet_id}', this)">
-              <div class="action-icon">👎</div>
+              <div class="action-icon hollow-btn ${reaction === 'dislike' ? 'disliked' : ''}" id="dislike-icon-${post.tweet_id}">👎</div>
               <span class="action-label" id="dislike-count-${post.tweet_id}">${formatNumber(post.app_dislikes || 0)}</span>
             </div>
+
+            <!-- Comments Button -->
             <div class="action-item" onclick="openComments('${post.tweet_id}')">
-              <div class="action-icon">💬</div>
+              <div class="action-icon hollow-btn">💬</div>
               <span class="action-label" id="comm-count-${post.tweet_id}">${formatNumber(post.app_comments_count || 0)}</span>
             </div>
+
+            <!-- Share Button -->
             <div class="action-item" onclick="handleShare('${post.tweet_id}')">
-              <div class="action-icon">↗️</div>
+              <div class="action-icon hollow-btn">↗️</div>
               <span class="action-label">Share</span>
             </div>
             
-            <!-- Safety Shield with Interactive Dropdown Sub-Buttons -->
+            <!-- Safety Shield with Dropdown Sub-Buttons -->
             <div class="action-item">
-              <div class="action-icon" onclick="toggleSafetyDropdown('${post.tweet_id}')">🛡️</div>
+              <div class="action-icon hollow-btn" onclick="toggleSafetyDropdown('${post.tweet_id}')">🛡️</div>
               <span class="action-label">Safety</span>
               
               <!-- Popover Menu with 2 clickable Sub-Buttons -->
@@ -964,43 +969,99 @@
         .replace(/'/g, '&#039;');
     }
 
-    function handleLike(tweetId, el) {
-      const icon = el.querySelector('.action-icon');
-      const label = el.querySelector('.action-label');
+    // Mutual Exclusion: Like vs Dislike
+    function handleLike(tweetId) {
       let post = allPosts.find(p => p.tweet_id === tweetId);
       if (!post) return;
 
-      if (icon.classList.contains('liked')) {
-        icon.classList.remove('liked');
+      const likeIcon = document.getElementById(`like-icon-${tweetId}`);
+      const dislikeIcon = document.getElementById(`dislike-icon-${tweetId}`);
+      const likeCountEl = document.getElementById(`like-count-${tweetId}`);
+      const dislikeCountEl = document.getElementById(`dislike-count-${tweetId}`);
+
+      const currentReaction = userReactions[tweetId];
+
+      if (currentReaction === 'like') {
+        // Untoggle Like
+        userReactions[tweetId] = null;
         post.app_likes = Math.max(0, (post.app_likes || 1) - 1);
+        if (likeIcon) {
+          likeIcon.classList.remove('liked');
+          likeIcon.innerText = '♡';
+        }
       } else {
-        icon.classList.add('liked');
+        // Toggle Like ON
+        if (currentReaction === 'dislike') {
+          // Remove Dislike if active
+          post.app_dislikes = Math.max(0, (post.app_dislikes || 1) - 1);
+          if (dislikeIcon) {
+            dislikeIcon.classList.remove('disliked');
+          }
+          if (dislikeCountEl) dislikeCountEl.innerText = formatNumber(post.app_dislikes);
+        }
+
+        userReactions[tweetId] = 'like';
         post.app_likes = (post.app_likes || 0) + 1;
+        if (likeIcon) {
+          likeIcon.classList.add('liked');
+          likeIcon.innerText = '♥';
+        }
       }
-      label.innerText = formatNumber(post.app_likes);
+
+      if (likeCountEl) likeCountEl.innerText = formatNumber(post.app_likes);
 
       if (supabaseClient) {
-        supabaseClient.from('viral_tweets').update({ app_likes: post.app_likes }).eq('tweet_id', tweetId);
+        supabaseClient.from('viral_tweets').update({ 
+          app_likes: post.app_likes,
+          app_dislikes: post.app_dislikes 
+        }).eq('tweet_id', tweetId);
       }
     }
 
-    function handleDislike(tweetId, el) {
-      const icon = el.querySelector('.action-icon');
-      const label = el.querySelector('.action-label');
+    function handleDislike(tweetId) {
       let post = allPosts.find(p => p.tweet_id === tweetId);
       if (!post) return;
 
-      if (icon.classList.contains('disliked')) {
-        icon.classList.remove('disliked');
+      const likeIcon = document.getElementById(`like-icon-${tweetId}`);
+      const dislikeIcon = document.getElementById(`dislike-icon-${tweetId}`);
+      const likeCountEl = document.getElementById(`like-count-${tweetId}`);
+      const dislikeCountEl = document.getElementById(`dislike-count-${tweetId}`);
+
+      const currentReaction = userReactions[tweetId];
+
+      if (currentReaction === 'dislike') {
+        // Untoggle Dislike
+        userReactions[tweetId] = null;
         post.app_dislikes = Math.max(0, (post.app_dislikes || 1) - 1);
+        if (dislikeIcon) {
+          dislikeIcon.classList.remove('disliked');
+        }
       } else {
-        icon.classList.add('disliked');
+        // Toggle Dislike ON
+        if (currentReaction === 'like') {
+          // Remove Like if active
+          post.app_likes = Math.max(0, (post.app_likes || 1) - 1);
+          if (likeIcon) {
+            likeIcon.classList.remove('liked');
+            likeIcon.innerText = '♡';
+          }
+          if (likeCountEl) likeCountEl.innerText = formatNumber(post.app_likes);
+        }
+
+        userReactions[tweetId] = 'dislike';
         post.app_dislikes = (post.app_dislikes || 0) + 1;
+        if (dislikeIcon) {
+          dislikeIcon.classList.add('disliked');
+        }
       }
-      label.innerText = formatNumber(post.app_dislikes);
+
+      if (dislikeCountEl) dislikeCountEl.innerText = formatNumber(post.app_dislikes);
 
       if (supabaseClient) {
-        supabaseClient.from('viral_tweets').update({ app_dislikes: post.app_dislikes }).eq('tweet_id', tweetId);
+        supabaseClient.from('viral_tweets').update({ 
+          app_likes: post.app_likes,
+          app_dislikes: post.app_dislikes 
+        }).eq('tweet_id', tweetId);
       }
     }
 
@@ -1032,7 +1093,6 @@
       }
     }
 
-    // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.action-item')) {
         document.querySelectorAll('.safety-menu-popover').forEach(p => p.classList.remove('open'));
@@ -1069,10 +1129,6 @@
 
       renderFeed();
       alert(`🚫 @${author} has been blocked and removed from your feed.`);
-    }
-
-    function showSafetyGuidelines() {
-      alert('🛡️ Quick Look Google Play UGC Guidelines:\n\n• Zero tolerance for hate speech, harassment, violence, or explicit material.\n• Tap the Safety Shield on any post to Report Content or Block Creators.\n• 24-hour moderation response queue.');
     }
 
     // Comments Sheet

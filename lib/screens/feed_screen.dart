@@ -5,7 +5,6 @@ import '../services/supabase_service.dart';
 import '../widgets/post_card.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/ugc_safety_dialogs.dart';
-import 'privacy_policy_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -92,7 +91,7 @@ class _FeedScreenState extends State<FeedScreen> {
           if (_isLoading)
             const Center(
               child: CircularProgressIndicator(
-                color: Color(0xFFE50914),
+                color: Color(0xFF00E676),
               ),
             )
           else if (_tweets.isEmpty)
@@ -115,11 +114,11 @@ class _FeedScreenState extends State<FeedScreen> {
                   ElevatedButton.icon(
                     onPressed: _loadFeed,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF00E676),
                       foregroundColor: Colors.black,
                     ),
                     icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Refresh Feed'),
+                    label: const Text('Refresh Feed', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -141,7 +140,7 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
 
           // ------------------------------------------------------------------
-          // 2. TOP FLOATING APP BAR & CATEGORY SELECTOR
+          // 2. TOP FLOATING APP BAR & CATEGORY SELECTOR (Clean header)
           // ------------------------------------------------------------------
           Positioned(
             top: 0,
@@ -150,7 +149,7 @@ class _FeedScreenState extends State<FeedScreen> {
             child: Container(
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top + 8,
-                bottom: 12,
+                bottom: 10,
               ),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -158,7 +157,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.black.withOpacity(0.85),
-                    Colors.black.withOpacity(0.4),
+                    Colors.black.withOpacity(0.3),
                     Colors.transparent,
                   ],
                 ),
@@ -166,7 +165,7 @@ class _FeedScreenState extends State<FeedScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // App Title Row with Settings & Privacy navigation
+                  // App Title Row with Refresh Button Only
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: Row(
@@ -175,14 +174,16 @@ class _FeedScreenState extends State<FeedScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(6),
+                              padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE50914),
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF00E676), Color(0xFF00B0FF)],
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
                                 Icons.bolt_rounded,
-                                color: Colors.white,
+                                color: Colors.black,
                                 size: 18,
                               ),
                             ),
@@ -198,24 +199,19 @@ class _FeedScreenState extends State<FeedScreen> {
                             ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.refresh, color: Colors.white, size: 22),
-                              onPressed: _loadFeed,
-                              tooltip: 'Refresh Feed',
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.privacy_tip_outlined, color: Colors.white, size: 22),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
-                                );
-                              },
-                              tooltip: 'Privacy Policy & Terms',
-                            ),
-                          ],
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24, width: 1),
+                          ),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
+                            onPressed: _loadFeed,
+                            tooltip: 'Refresh Feed',
+                          ),
                         ),
                       ],
                     ),

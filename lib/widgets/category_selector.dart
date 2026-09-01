@@ -31,16 +31,16 @@ class CategorySelector extends StatelessWidget {
               curve: Curves.easeOutCubic,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.08),
+                color: isSelected ? const Color(0xFF00E676) : Colors.black.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isSelected ? Colors.white : Colors.white.withOpacity(0.14),
-                  width: 1,
+                  color: isSelected ? const Color(0xFF00E676) : Colors.white.withOpacity(0.18),
+                  width: 1.2,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.3),
+                          color: const Color(0xFF00E676).withOpacity(0.4),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),

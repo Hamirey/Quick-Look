@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/viral_tweet.dart';
 import '../services/supabase_service.dart';
 import 'comments_sheet.dart';
@@ -31,6 +30,8 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
   late AnimationController _animController;
   late Animation<double> _scaleAnimation;
 
+  static const Color _greenAccent = Color(0xFF00E676);
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +43,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.35).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
   }
@@ -53,6 +54,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
     super.dispose();
   }
 
+  // Mutual Exclusion: Like toggles Dislike OFF
   void _toggleLike() {
     setState(() {
       if (_isLiked) {
@@ -64,6 +66,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
         if (_isDisliked) {
           _isDisliked = false;
           _dislikes = (_dislikes > 0) ? _dislikes - 1 : 0;
+          SupabaseService.instance.incrementDislike(widget.tweet.tweetId, _dislikes);
         }
         _animController.forward().then((_) => _animController.reverse());
       }
@@ -74,6 +77,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
     SupabaseService.instance.incrementLike(widget.tweet.tweetId, _likes);
   }
 
+  // Mutual Exclusion: Dislike toggles Like OFF
   void _toggleDislike() {
     setState(() {
       if (_isDisliked) {
@@ -85,6 +89,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
         if (_isLiked) {
           _isLiked = false;
           _likes = (_likes > 0) ? _likes - 1 : 0;
+          SupabaseService.instance.incrementLike(widget.tweet.tweetId, _likes);
         }
       }
       widget.tweet.appLikes = _likes;
@@ -163,79 +168,74 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Like Button
-        _buildActionButton(
-          iconWidget: ScaleTransition(
+        // Hollow Like Button
+        _buildHollowActionButton(
+          icon: ScaleTransition(
             scale: _scaleAnimation,
             child: Icon(
-              _isLiked ? Icons.favorite : Icons.favorite_border,
-              color: _isLiked ? const Color(0xFFFF2D55) : Colors.white,
-              size: 32,
+              _isLiked ? Icons.favorite : Icons.favorite_border_rounded,
+              color: _isLiked ? _greenAccent : Colors.white,
+              size: 24,
             ),
           ),
+          isActive: _isLiked,
+          activeColor: _greenAccent,
           label: _formatCount(_likes),
           onTap: _toggleLike,
         ),
         const SizedBox(height: 16),
 
-        // Dislike Button
-        _buildActionButton(
-          iconWidget: Icon(
-            _isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
+        // Hollow Dislike Button
+        _buildHollowActionButton(
+          icon: Icon(
+            _isDisliked ? Icons.thumb_down_rounded : Icons.thumb_down_outlined,
             color: _isDisliked ? const Color(0xFFFFA000) : Colors.white,
-            size: 28,
+            size: 22,
           ),
+          isActive: _isDisliked,
+          activeColor: const Color(0xFFFFA000),
           label: _formatCount(_dislikes),
           onTap: _toggleDislike,
         ),
         const SizedBox(height: 16),
 
-        // Comments Button
-        _buildActionButton(
-          iconWidget: const Icon(
+        // Hollow Comments Button
+        _buildHollowActionButton(
+          icon: const Icon(
             Icons.chat_bubble_outline_rounded,
             color: Colors.white,
-            size: 30,
+            size: 22,
           ),
           label: _formatCount(_commentsCount),
           onTap: _openComments,
         ),
         const SizedBox(height: 16),
 
-        // Share Button (WhatsApp formatted)
-        _buildActionButton(
-          iconWidget: const Icon(
-            Icons.share_rounded,
+        // Hollow Share Button
+        _buildHollowActionButton(
+          icon: const Icon(
+            Icons.share_outlined,
             color: Colors.white,
-            size: 28,
+            size: 22,
           ),
           label: 'Share',
           onTap: _shareToWhatsApp,
         ),
         const SizedBox(height: 16),
 
-        // Safety Shield with Dropdown Sub-Buttons
+        // Hollow Safety Shield with Dropdown Sub-Buttons
         Stack(
           clipBehavior: Clip.none,
           alignment: Alignment.centerRight,
           children: [
-            _buildActionButton(
-              iconWidget: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _isSafetyMenuOpen ? const Color(0xFFE50914).withOpacity(0.3) : Colors.black45,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: _isSafetyMenuOpen ? const Color(0xFFE50914) : Colors.white24,
-                    width: 1,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.shield_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
+            _buildHollowActionButton(
+              icon: const Icon(
+                Icons.shield_outlined,
+                color: Colors.white,
+                size: 22,
               ),
+              isActive: _isSafetyMenuOpen,
+              activeColor: const Color(0xFFE50914),
               label: 'Safety',
               onTap: _toggleSafetyMenu,
             ),
@@ -243,19 +243,19 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
             // Popover Sub-Buttons (Report & Block)
             if (_isSafetyMenuOpen)
               Positioned(
-                right: 60,
+                right: 54,
                 bottom: 0,
                 child: Container(
-                  width: 150,
+                  width: 145,
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF161824).withOpacity(0.95),
+                    color: const Color(0xFF10131B).withOpacity(0.95),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white24, width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.8),
-                        blurRadius: 16,
+                        color: Colors.black.withOpacity(0.9),
+                        blurRadius: 18,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -318,20 +318,40 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
     );
   }
 
-  Widget _buildActionButton({
-    required Widget iconWidget,
+  Widget _buildHollowActionButton({
+    required Widget icon,
     required String label,
     required VoidCallback onTap,
+    bool isActive = false,
+    Color activeColor = Colors.white,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(4),
-            child: iconWidget,
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: isActive ? activeColor.withOpacity(0.18) : Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isActive ? activeColor : Colors.white.withOpacity(0.28),
+                width: 1.8,
+              ),
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: activeColor.withOpacity(0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(child: icon),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             label,
             style: const TextStyle(
