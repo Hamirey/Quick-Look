@@ -5,7 +5,6 @@ import '../models/viral_tweet.dart';
 import '../services/supabase_service.dart';
 import 'comments_sheet.dart';
 import 'ugc_safety_dialogs.dart';
-import '../screens/privacy_policy_screen.dart';
 
 class ActionToolbar extends StatefulWidget {
   final ViralTweet tweet;
@@ -24,6 +23,7 @@ class ActionToolbar extends StatefulWidget {
 class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProviderStateMixin {
   bool _isLiked = false;
   bool _isDisliked = false;
+  bool _isSafetyMenuOpen = false;
   late int _likes;
   late int _dislikes;
   late int _commentsCount;
@@ -124,64 +124,27 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
     );
   }
 
-  Future<void> _openNativeX() async {
-    final uri = Uri.parse(widget.tweet.canonicalXUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+  void _toggleSafetyMenu() {
+    setState(() {
+      _isSafetyMenuOpen = !_isSafetyMenuOpen;
+    });
   }
 
-  void _showSafetyMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E2029),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.report_problem_outlined, color: Color(0xFFE50914)),
-              title: const Text('Report Post', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Flag hate speech, fake news, explicit media, or spam', style: TextStyle(color: Colors.white54, fontSize: 12)),
-              onTap: () {
-                Navigator.pop(ctx);
-                UgcSafetyDialogs.showReportDialog(
-                  context,
-                  tweetId: widget.tweet.tweetId,
-                  targetDescription: 'Post by @${widget.tweet.author}',
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.block_flipped, color: Colors.orangeAccent),
-              title: Text('Block @${widget.tweet.author}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Hide this and future posts from this author', style: TextStyle(color: Colors.white54, fontSize: 12)),
-              onTap: () {
-                Navigator.pop(ctx);
-                UgcSafetyDialogs.showBlockUserDialog(
-                  context,
-                  authorHandle: widget.tweet.author,
-                  onBlocked: widget.onPostBlocked,
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined, color: Colors.cyanAccent),
-              title: const Text('Privacy Policy & Guidelines', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+  void _reportPost() {
+    setState(() => _isSafetyMenuOpen = false);
+    UgcSafetyDialogs.showReportDialog(
+      context,
+      tweetId: widget.tweet.tweetId,
+      targetDescription: 'Post by @${widget.tweet.author}',
+    );
+  }
+
+  void _blockAuthor() {
+    setState(() => _isSafetyMenuOpen = false);
+    UgcSafetyDialogs.showBlockUserDialog(
+      context,
+      authorHandle: widget.tweet.author,
+      onBlocked: widget.onPostBlocked,
     );
   }
 
@@ -207,7 +170,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
             child: Icon(
               _isLiked ? Icons.favorite : Icons.favorite_border,
               color: _isLiked ? const Color(0xFFFF2D55) : Colors.white,
-              size: 34,
+              size: 32,
             ),
           ),
           label: _formatCount(_likes),
@@ -219,8 +182,8 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
         _buildActionButton(
           iconWidget: Icon(
             _isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
-            color: _isDisliked ? Colors.orangeAccent : Colors.white,
-            size: 30,
+            color: _isDisliked ? const Color(0xFFFFA000) : Colors.white,
+            size: 28,
           ),
           label: _formatCount(_dislikes),
           onTap: _toggleDislike,
@@ -232,7 +195,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
           iconWidget: const Icon(
             Icons.chat_bubble_outline_rounded,
             color: Colors.white,
-            size: 32,
+            size: 30,
           ),
           label: _formatCount(_commentsCount),
           onTap: _openComments,
@@ -244,50 +207,112 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
           iconWidget: const Icon(
             Icons.share_rounded,
             color: Colors.white,
-            size: 30,
+            size: 28,
           ),
           label: 'Share',
           onTap: _shareToWhatsApp,
         ),
         const SizedBox(height: 16),
 
-        // Open in X Button
-        _buildActionButton(
-          iconWidget: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.black54,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white30, width: 1),
+        // Safety Shield with Dropdown Sub-Buttons
+        Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.centerRight,
+          children: [
+            _buildActionButton(
+              iconWidget: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _isSafetyMenuOpen ? const Color(0xFFE50914).withOpacity(0.3) : Colors.black45,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _isSafetyMenuOpen ? const Color(0xFFE50914) : Colors.white24,
+                    width: 1,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              label: 'Safety',
+              onTap: _toggleSafetyMenu,
             ),
-            child: const Icon(
-              Icons.open_in_new_rounded,
-              color: Colors.white,
-              size: 18,
-            ),
-          ),
-          label: 'Open X',
-          onTap: _openNativeX,
-        ),
-        const SizedBox(height: 16),
 
-        // UGC Moderation & Safety Menu (Report / Block)
-        _buildActionButton(
-          iconWidget: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.black54,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white24, width: 1),
-            ),
-            child: const Icon(
-              Icons.shield_outlined,
-              color: Colors.white70,
-              size: 18,
-            ),
-          ),
-          label: 'Safety',
-          onTap: _showSafetyMenu,
+            // Popover Sub-Buttons (Report & Block)
+            if (_isSafetyMenuOpen)
+              Positioned(
+                right: 60,
+                bottom: 0,
+                child: Container(
+                  width: 150,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF161824).withOpacity(0.95),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white24, width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.8),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Sub-Button: Report
+                      InkWell(
+                        onTap: _reportPost,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.flag_outlined, color: Color(0xFFFF453A), size: 16),
+                              SizedBox(width: 8),
+                              Text(
+                                'Report Post',
+                                style: TextStyle(
+                                  color: Color(0xFFFF453A),
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Divider(color: Colors.white12, height: 4),
+                      // Sub-Button: Block
+                      InkWell(
+                        onTap: _blockAuthor,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.block_outlined, color: Color(0xFFFF9F0A), size: 16),
+                              SizedBox(width: 8),
+                              Text(
+                                'Block User',
+                                style: TextStyle(
+                                  color: Color(0xFFFF9F0A),
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
@@ -315,7 +340,7 @@ class _ActionToolbarState extends State<ActionToolbar> with SingleTickerProvider
               fontWeight: FontWeight.w600,
               shadows: [
                 Shadow(
-                  color: Colors.black80,
+                  color: Colors.black,
                   offset: Offset(0, 1),
                   blurRadius: 4,
                 ),

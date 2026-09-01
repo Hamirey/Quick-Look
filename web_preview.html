@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Quick Look - Viral News Feed</title>
+  <title>Quick Look - Premium Viral Feed</title>
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,16 +12,31 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
+    :root {
+      --bg-dark: #000000;
+      --card-bg: #090a0f;
+      --surface-glass: rgba(18, 20, 29, 0.75);
+      --border-glass: rgba(255, 255, 255, 0.12);
+      --accent-red: #FF2D55;
+      --accent-blue: #1D9BF0;
+      --accent-orange: #FF9500;
+      --text-main: #FFFFFF;
+      --text-sub: rgba(255, 255, 255, 0.72);
+      --text-dim: rgba(255, 255, 255, 0.45);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
+    
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #050608;
-      color: #fff;
+      background: radial-gradient(circle at center, #0e1017 0%, #000000 100%);
+      color: var(--text-main);
       height: 100vh;
       width: 100vw;
       overflow: hidden;
@@ -30,14 +45,14 @@
       align-items: center;
     }
 
-    /* Mobile Container Frame for Desktop View */
+    /* Cinematic Mobile Container */
     .app-viewport {
       width: 100%;
-      max-width: 440px;
+      max-width: 420px;
       height: 100%;
-      max-height: 900px;
+      max-height: 890px;
       position: relative;
-      background: #0d0e12;
+      background: var(--card-bg);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -45,98 +60,110 @@
 
     @media (min-width: 480px) {
       .app-viewport {
-        border-radius: 32px;
+        border-radius: 36px;
         height: 94vh;
-        border: 2px solid #222530;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.1);
       }
     }
 
-    /* Top Floating App Header */
+    /* Top Floating Header with Frosted Glass */
     .app-header {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-      z-index: 10;
-      padding: 16px 16px 10px 16px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 75%, transparent 100%);
+      z-index: 20;
+      padding: 16px 16px 12px 16px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 75%, transparent 100%);
       pointer-events: auto;
     }
+    
     .header-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
+    
     .app-brand {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 900;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.6px;
+      color: #fff;
     }
+    
     .app-brand-badge {
-      background: #E50914;
-      border-radius: 8px;
-      padding: 3px 6px;
+      background: linear-gradient(135deg, #FF2D55 0%, #FF5E3A 100%);
+      border-radius: 9px;
+      padding: 4px 7px;
       font-size: 13px;
+      box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4);
     }
+    
     .header-actions {
       display: flex;
       gap: 8px;
     }
+    
     .icon-btn {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
       color: #fff;
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
-      transition: all 0.2s;
+      font-size: 15px;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
+    
     .icon-btn:hover {
-      background: rgba(255,255,255,0.25);
-      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.22);
+      transform: scale(1.06);
     }
 
-    /* Category Filter Pills */
+    /* Minimalist Unified Category Pills */
     .category-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
-      padding-bottom: 4px;
+      padding-bottom: 2px;
     }
-    .category-bar::-webkit-scrollbar {
-      display: none;
-    }
+    .category-bar::-webkit-scrollbar { display: none; }
+    
     .cat-pill {
       padding: 6px 14px;
-      border-radius: 20px;
-      background: rgba(0,0,0,0.55);
-      border: 1px solid rgba(255,255,255,0.22);
-      color: #fff;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      color: var(--text-sub);
       font-size: 12.5px;
       font-weight: 600;
+      letter-spacing: -0.2px;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
+    
     .cat-pill.active {
-      background: #fff;
-      color: #000;
-      border-color: #fff;
-      box-shadow: 0 0 12px rgba(255,255,255,0.35);
+      background: #FFFFFF;
+      color: #000000;
+      border-color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.35);
     }
 
-    /* Vertical Feed Container */
+    /* Vertical Swiping Feed Container */
     .feed-container {
       width: 100%;
       height: 100%;
@@ -146,9 +173,7 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
-    .feed-container::-webkit-scrollbar {
-      display: none;
-    }
+    .feed-container::-webkit-scrollbar { display: none; }
 
     /* Post Card Item */
     .post-card {
@@ -160,7 +185,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0d0e12;
+      background: #06070a;
       overflow: hidden;
     }
 
@@ -172,66 +197,84 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
+      filter: brightness(0.92);
     }
 
+    /* Elegant Vignette Overlay */
     .gradient-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, rgba(0,0,0,0.65) 0%, transparent 25%, transparent 60%, rgba(0,0,0,0.9) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.7) 0%,
+        rgba(0, 0, 0, 0.05) 30%,
+        rgba(0, 0, 0, 0.15) 55%,
+        rgba(0, 0, 0, 0.92) 100%
+      );
       z-index: 2;
       pointer-events: none;
     }
 
-    /* Bottom-Left Overlay Content */
+    /* Bottom-Left Unified Glass Info */
     .post-content {
       position: absolute;
       bottom: 24px;
       left: 16px;
-      right: 84px;
+      right: 80px;
       z-index: 5;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
     }
-    .category-tag {
+
+    .category-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
-      border-radius: 12px;
+      border-radius: 10px;
       font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
       text-transform: uppercase;
       width: fit-content;
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      color: #fff;
     }
-    .tag-afrobeats { background: rgba(255, 122, 0, 0.25); border: 1px solid #FF7A00; color: #FF7A00; }
-    .tag-nollywood { background: rgba(224, 64, 251, 0.25); border: 1px solid #E040FB; color: #E040FB; }
-    .tag-tech { background: rgba(0, 229, 255, 0.25); border: 1px solid #00E5FF; color: #00E5FF; }
-    .tag-politics { background: rgba(0, 230, 118, 0.25); border: 1px solid #00E676; color: #00E676; }
+    
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #FF2D55;
+    }
 
     .post-author {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
       gap: 6px;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
       cursor: pointer;
+      color: #fff;
     }
+    
     .verified-icon {
-      color: #1D9BF0;
-      font-size: 14px;
+      color: var(--accent-blue);
+      font-size: 13px;
     }
+
     .post-caption {
       font-size: 13.5px;
-      line-height: 1.4;
-      color: rgba(255,255,255,0.92);
-      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.94);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
@@ -241,23 +284,26 @@
     .post-caption.expanded {
       -webkit-line-clamp: unset;
     }
+
     .thread-link-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.12);
-      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 5px 11px;
       border-radius: 8px;
       font-size: 11px;
-      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
       text-decoration: none;
       width: fit-content;
-      margin-top: 4px;
-      backdrop-filter: blur(6px);
+      margin-top: 3px;
+      backdrop-filter: blur(8px);
       transition: all 0.2s;
     }
     .thread-link-btn:hover {
-      background: rgba(255,255,255,0.25);
+      background: rgba(255, 255, 255, 0.25);
       color: #fff;
     }
 
@@ -266,60 +312,122 @@
       position: absolute;
       right: 12px;
       bottom: 24px;
-      z-index: 6;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 15px;
     }
+
     .action-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
       cursor: pointer;
+      position: relative;
     }
+
     .action-icon {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(18, 20, 28, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(16px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 19px;
+      color: #fff;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
     }
+    
     .action-icon:hover {
-      transform: scale(1.15);
-      background: rgba(0,0,0,0.6);
+      transform: scale(1.12);
+      background: rgba(28, 32, 46, 0.85);
+      border-color: rgba(255, 255, 255, 0.3);
     }
+    
     .action-icon.liked {
       color: #FF2D55;
-      background: rgba(255, 45, 85, 0.2);
+      background: rgba(255, 45, 85, 0.25);
       border-color: #FF2D55;
-      animation: pulse 0.3s ease-in-out;
+      animation: heartPulse 0.35s ease-in-out;
     }
+    
     .action-icon.disliked {
       color: #FFA000;
-      background: rgba(255, 160, 0, 0.2);
+      background: rgba(255, 160, 0, 0.22);
       border-color: #FFA000;
     }
+
     .action-label {
       font-size: 11px;
       font-weight: 700;
-      color: #fff;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+      letter-spacing: -0.2px;
     }
 
-    @keyframes pulse {
+    @keyframes heartPulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.35); }
       100% { transform: scale(1); }
     }
 
-    /* Fallback quote card */
+    /* Safety Shield Dropdown Sub-Buttons (Animated Glass Popover) */
+    .safety-menu-popover {
+      position: absolute;
+      right: 54px;
+      top: -20px;
+      background: rgba(18, 20, 30, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.85) translateX(10px);
+      transform-origin: right center;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 30;
+      width: 140px;
+    }
+    
+    .safety-menu-popover.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateX(0);
+    }
+
+    .safety-sub-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .safety-sub-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .safety-sub-btn.report-btn { color: #FF453A; }
+    .safety-sub-btn.block-btn { color: #FF9F0A; }
+
+    /* Quote Fallback Container */
     .quote-card-body {
       padding: 32px 24px;
       text-align: center;
@@ -329,18 +437,18 @@
       justify-content: center;
       height: 100%;
       width: 100%;
-      background: radial-gradient(circle at center, #1b2030 0%, #0d0e14 100%);
+      background: radial-gradient(circle at center, #151824 0%, #07080c 100%);
     }
     .quote-icon {
-      font-size: 42px;
-      opacity: 0.3;
+      font-size: 40px;
+      opacity: 0.25;
       margin-bottom: 12px;
     }
     .quote-title {
-      font-size: 17px;
+      font-size: 16.5px;
       font-weight: 600;
-      line-height: 1.45;
-      color: rgba(255,255,255,0.9);
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.92);
     }
 
     /* Comments Modal Bottom Sheet */
@@ -350,8 +458,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.65);
-      z-index: 20;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 40;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s;
@@ -360,39 +469,44 @@
       opacity: 1;
       pointer-events: auto;
     }
+    
     .comments-sheet {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 70%;
-      background: #16181F;
-      border-radius: 24px 24px 0 0;
-      z-index: 25;
+      height: 72%;
+      background: #12141C;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px 28px 0 0;
+      z-index: 45;
       display: flex;
       flex-direction: column;
       transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      transition: transform 0.32s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
     .comments-sheet.open {
       transform: translateY(0);
     }
+    
     .sheet-handle {
-      width: 40px;
+      width: 36px;
       height: 4px;
-      background: rgba(255,255,255,0.25);
+      background: rgba(255, 255, 255, 0.22);
       border-radius: 2px;
-      margin: 10px auto 6px;
+      margin: 10px auto 4px;
     }
+    
     .sheet-header {
       padding: 10px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       font-weight: 700;
       font-size: 15px;
     }
+    
     .comments-list {
       flex: 1;
       overflow-y: auto;
@@ -401,55 +515,66 @@
       flex-direction: column;
       gap: 14px;
     }
+    
     .comment-item {
       display: flex;
       gap: 12px;
     }
+    
     .comment-avatar {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: #4F46E5;
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12.5px;
       flex-shrink: 0;
     }
+    
     .comment-body {
       flex: 1;
     }
+    
     .comment-author {
       font-size: 12.5px;
       font-weight: 700;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255, 255, 255, 0.9);
       margin-bottom: 2px;
     }
+    
     .comment-text {
       font-size: 13px;
-      color: rgba(255,255,255,0.75);
+      color: rgba(255, 255, 255, 0.78);
       line-height: 1.35;
     }
+    
     .comment-input-bar {
       padding: 12px 16px;
-      background: #1E2029;
+      background: #181B26;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       gap: 10px;
-      border-top: 1px solid rgba(255,255,255,0.08);
     }
+    
     .comment-input {
       flex: 1;
-      background: #2C2F3E;
-      border: none;
+      background: #242938;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       padding: 10px 16px;
       color: #fff;
       font-size: 13.5px;
       outline: none;
     }
+    .comment-input:focus {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
     .send-btn {
-      background: #E50914;
+      background: var(--accent-red);
       border: none;
       color: #fff;
       width: 38px;
@@ -459,7 +584,75 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
+      font-size: 14px;
+      transition: transform 0.15s;
+    }
+    .send-btn:hover {
+      transform: scale(1.08);
+    }
+
+    /* Full Modal Report Dialog */
+    .report-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      width: 90%;
+      max-width: 340px;
+      background: #161824;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 20px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+    }
+    .report-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .report-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #FF453A;
+    }
+    .report-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .report-opt-btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .report-opt-btn:hover {
+      background: rgba(255, 69, 58, 0.2);
+      border-color: #FF453A;
+    }
+    .report-cancel-btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text-sub);
+      font-size: 13px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -475,16 +668,16 @@
         </div>
         <div class="header-actions">
           <button class="icon-btn" onclick="loadPosts()" title="Refresh Feed">🔄</button>
-          <button class="icon-btn" onclick="showSafetyGuidelines()" title="Safety Policy">🛡️</button>
+          <button class="icon-btn" onclick="showSafetyGuidelines()" title="Safety Guidelines">🛡️</button>
         </div>
       </div>
-      <!-- Category Pills -->
+      <!-- Category Filter Pills -->
       <nav class="category-bar">
-        <button class="cat-pill active" onclick="setCategory('All', this)">All</button>
-        <button class="cat-pill" onclick="setCategory('Afrobeats', this)">Afrobeats</button>
-        <button class="cat-pill" onclick="setCategory('Nollywood', this)">Nollywood</button>
-        <button class="cat-pill" onclick="setCategory('Tech', this)">Tech</button>
-        <button class="cat-pill" onclick="setCategory('Politics', this)">Politics</button>
+        <button class="cat-pill active" onclick="setCategory('All', this)">All News</button>
+        <button class="cat-pill" onclick="setCategory('Afrobeats', this)">🎵 Afrobeats</button>
+        <button class="cat-pill" onclick="setCategory('Nollywood', this)">🎬 Nollywood</button>
+        <button class="cat-pill" onclick="setCategory('Tech', this)">💡 Tech</button>
+        <button class="cat-pill" onclick="setCategory('Politics', this)">🏛️ Politics</button>
       </nav>
     </header>
 
@@ -496,14 +689,30 @@
     <div class="comments-sheet" id="commentsSheet">
       <div class="sheet-handle"></div>
       <div class="sheet-header">
-        <span id="commentsCountHeader">0 Comments</span>
+        <span id="commentsCountHeader">Comments</span>
         <button class="icon-btn" style="width:28px;height:28px;" onclick="closeComments()">✕</button>
       </div>
       <div class="comments-list" id="commentsList"></div>
       <div class="comment-input-bar">
-        <input type="text" id="commentInput" class="comment-input" placeholder="Add a comment..." onkeydown="if(event.key==='Enter') submitComment()">
+        <input type="text" id="commentInput" class="comment-input" placeholder="Join the discussion..." onkeydown="if(event.key==='Enter') submitComment()">
         <button class="send-btn" onclick="submitComment()">➤</button>
       </div>
+    </div>
+
+    <!-- Report Modal Dialog -->
+    <div class="report-modal" id="reportModal">
+      <div class="report-title">
+        <span>🚩</span>
+        <span>Report Post</span>
+      </div>
+      <div style="font-size:12.5px;color:var(--text-sub);margin-bottom:12px;">Select a reason for moderation review:</div>
+      <div class="report-options">
+        <button class="report-opt-btn" onclick="submitReport('Hate Speech / Harassment')">🚫 Hate Speech or Harassment</button>
+        <button class="report-opt-btn" onclick="submitReport('Misinformation / Fake News')">⚠️ Misinformation or Fake News</button>
+        <button class="report-opt-btn" onclick="submitReport('Explicit or Graphic Media')">🔞 Explicit or Violent Media</button>
+        <button class="report-opt-btn" onclick="submitReport('Spam or Financial Scam')">🎣 Spam, Scam or Fraud</button>
+      </div>
+      <button class="report-cancel-btn" onclick="closeReportModal()">Cancel</button>
     </div>
   </div>
 
@@ -521,63 +730,89 @@
       console.warn('Supabase initialization note:', e);
     }
 
-    const MOCK_POSTS = [
+    // Rich, Modern 2026 Viral Posts Dataset
+    const VIRAL_SEED_POSTS = [
       {
         tweet_id: '1829000000000000001',
-        author: 'WizkidSource',
-        caption: 'Wizkid shutdown London with a surprise performance! The entire stadium went crazy. 🔥🇳🇬 #AfrobeatsToTheWorld',
-        media_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80',
-        x_url: 'https://x.com/WizkidSource/status/1829000000000000001',
+        author: 'Wizkidayo',
+        caption: 'London stadium was magical tonight! Afrobeats to the whole world forever. Love you all my people! 🦅🇳🇬✨ #MorayoTour',
+        media_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80',
+        x_url: 'https://x.com/wizkidayo/status/1829000000000000001',
         category: 'Afrobeats',
-        app_likes: 2430,
-        app_dislikes: 42,
-        app_comments_count: 312
+        app_likes: 18450,
+        app_dislikes: 85,
+        app_comments_count: 842
       },
       {
         tweet_id: '1829000000000000002',
         author: 'TechCabal',
-        caption: 'Lagos-based AI startup raises $15M Series A to build localized language models for African dialects. 🚀💡',
-        media_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+        caption: 'BREAKING: Lagos-based fintech startup secures $40M Series B expansion round to roll out zero-fee cross-border remittances across 12 African nations. 🚀🌍',
+        media_url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=900&auto=format&fit=crop&q=80',
         x_url: 'https://x.com/TechCabal/status/1829000000000000002',
         category: 'Tech',
-        app_likes: 1890,
-        app_dislikes: 15,
-        app_comments_count: 88
+        app_likes: 6240,
+        app_dislikes: 24,
+        app_comments_count: 215
       },
       {
         tweet_id: '1829000000000000003',
-        author: 'NollywoodUpdate',
-        caption: 'Funke Akindele breaks another box office record! Over 1.5 Billion Naira grossed in cinemas. 🎬🍿',
-        media_url: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80',
-        x_url: 'https://x.com/NollywoodUpdate/status/1829000000000000003',
+        author: 'FunkeAkindele',
+        caption: 'All glory to God! Our new movie officially crosses 2.1 Billion Naira at the global box office. Thank you Nigeria and the entire diaspora for the love! 🍿🎬👑',
+        media_url: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=900&auto=format&fit=crop&q=80',
+        x_url: 'https://x.com/funkeakindele/status/1829000000000000003',
         category: 'Nollywood',
-        app_likes: 3540,
-        app_dislikes: 21,
-        app_comments_count: 420
+        app_likes: 22100,
+        app_dislikes: 60,
+        app_comments_count: 1430
       },
       {
         tweet_id: '1829000000000000004',
         author: 'ChannelsTV',
-        caption: 'Breaking: National Assembly passes new comprehensive digital economy & cybersecurity regulation bill. 🏛️',
-        media_url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800&q=80',
-        x_url: 'https://x.com/ChannelsTV/status/1829000000000000004',
+        caption: 'UPDATE: Federal Government launches nationwide N500 Billion clean energy transit grant to slash public commuting costs in major urban corridors. 🏛️🚍',
+        media_url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=900&auto=format&fit=crop&q=80',
+        x_url: 'https://x.com/channelstv/status/1829000000000000004',
         category: 'Politics',
-        app_likes: 940,
-        app_dislikes: 120,
-        app_comments_count: 260
+        app_likes: 4120,
+        app_dislikes: 380,
+        app_comments_count: 670
+      },
+      {
+        tweet_id: '1829000000000000005',
+        author: 'burnaboy',
+        caption: 'Giant of Africa headline show in Paris sold out in under 15 minutes. We keep taking the African sound to legendary heights. 🦍🔥',
+        media_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&auto=format&fit=crop&q=80',
+        x_url: 'https://x.com/burnaboy/status/1829000000000000005',
+        category: 'Afrobeats',
+        app_likes: 15300,
+        app_dislikes: 110,
+        app_comments_count: 920
+      },
+      {
+        tweet_id: '1829000000000000006',
+        author: 'TechpointAfrica',
+        caption: 'Nigerian AI engineers develop state-of-the-art voice translation model supporting Yoruba, Igbo, Hausa, and Pidgin English in real-time. 🇳🇬🤖',
+        media_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=900&auto=format&fit=crop&q=80',
+        x_url: 'https://x.com/TechpointAfrica/status/1829000000000000006',
+        category: 'Tech',
+        app_likes: 8900,
+        app_dislikes: 18,
+        app_comments_count: 340
       }
     ];
 
-    let allPosts = [...MOCK_POSTS];
+    let allPosts = [...VIRAL_SEED_POSTS];
     let currentCategory = 'All';
     let activeTweetId = null;
+    let reportingTweetId = null;
+    let blockedAuthors = new Set();
+
     let localCommentsMap = {
       '1829000000000000001': [
         { author_name: 'DavidoFan99', comment_text: 'Big Wiz forever the greatest! 🦅🔥' },
-        { author_name: 'LagosVibes', comment_text: 'The sound quality was unbelievable.' }
+        { author_name: 'LagosVibes', comment_text: 'The stage energy was out of this world!' }
       ],
       '1829000000000000002': [
-        { author_name: 'DevTola', comment_text: 'Huge win for Nigerian tech ecosystem!' }
+        { author_name: 'DevTola', comment_text: 'Massive milestone for African tech founders.' }
       ]
     };
 
@@ -592,14 +827,13 @@
           if (!error && data && data.length > 0) {
             allPosts = data;
           } else {
-            allPosts = [...MOCK_POSTS];
+            allPosts = [...VIRAL_SEED_POSTS];
           }
         } catch (e) {
-          console.log('Error fetching from Supabase, using mock:', e);
-          allPosts = [...MOCK_POSTS];
+          allPosts = [...VIRAL_SEED_POSTS];
         }
       } else {
-        allPosts = [...MOCK_POSTS];
+        allPosts = [...VIRAL_SEED_POSTS];
       }
 
       renderFeed();
@@ -616,20 +850,20 @@
       const feed = document.getElementById('feed');
       feed.innerHTML = '';
 
-      const filtered = currentCategory === 'All'
-        ? allPosts
-        : allPosts.filter(p => p.category && p.category.toLowerCase() === currentCategory.toLowerCase());
+      const filtered = allPosts
+        .filter(p => !blockedAuthors.has((p.author || '').toLowerCase()))
+        .filter(p => currentCategory === 'All' || (p.category && p.category.toLowerCase() === currentCategory.toLowerCase()));
 
       if (filtered.length === 0) {
-        const emptyState = document.createElement('div');
-        emptyState.style.cssText = 'display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,0.7);text-align:center;padding:20px;';
-        emptyState.innerHTML = `
+        const empty = document.createElement('div');
+        empty.style.cssText = 'display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,0.7);text-align:center;padding:24px;';
+        empty.innerHTML = `
           <div style="font-size:42px;">⚡</div>
-          <div style="font-weight:700;font-size:16px;">No posts in ${currentCategory} yet</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.5);">Switch categories or run the scraper to populate posts.</div>
-          <button class="cat-pill active" style="margin-top:8px;" onclick="setCategory('All', document.querySelector('.cat-pill'))">View All Viral News</button>
+          <div style="font-weight:700;font-size:16px;">No posts in ${currentCategory} right now</div>
+          <div style="font-size:13px;color:var(--text-dim);">Run the scraper or switch categories to explore viral stories.</div>
+          <button class="cat-pill active" style="margin-top:10px;" onclick="setCategory('All', document.querySelector('.cat-pill'))">Explore All News</button>
         `;
-        feed.appendChild(emptyState);
+        feed.appendChild(empty);
         return;
       }
 
@@ -638,14 +872,12 @@
         card.className = 'post-card';
         card.id = `card-${post.tweet_id}`;
 
-        const catLower = (post.category || 'afrobeats').toLowerCase();
         const canonicalX = post.x_url || `https://x.com/${(post.author || '').replace('@','')}/status/${post.tweet_id}`;
-        const authorName = post.author && post.author.startsWith('@') ? post.author : '@' + (post.author || 'Author');
+        const authorHandle = post.author && post.author.startsWith('@') ? post.author : '@' + (post.author || 'Creator');
 
-        // Build HTML
         card.innerHTML = `
           ${post.media_url ? `
-            <img class="media-layer" src="${post.media_url}" alt="Media" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img class="media-layer" src="${post.media_url}" alt="Viral media" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="quote-card-body" style="display:none;position:absolute;top:0;left:0;">
               <div class="quote-icon">❝</div>
               <div class="quote-title">${escapeHtml(post.caption || 'Viral Nigerian Update')}</div>
@@ -661,42 +893,65 @@
 
           <!-- Bottom Left Overlay -->
           <div class="post-content">
-            <div class="category-tag tag-${catLower}">● ${escapeHtml(post.category || 'Viral')}</div>
+            <div class="category-badge">
+              <span class="badge-dot"></span>
+              <span>${escapeHtml(post.category || 'Viral')}</span>
+            </div>
             <div class="post-author" onclick="window.open('${canonicalX}', '_blank')">
-              <span>${escapeHtml(authorName)}</span>
+              <span>${escapeHtml(authorHandle)}</span>
               <span class="verified-icon">✓</span>
             </div>
             <div class="post-caption" onclick="this.classList.toggle('expanded')">${escapeHtml(post.caption || '')}</div>
-            <a href="${canonicalX}" target="_blank" class="thread-link-btn">🔗 View thread on X</a>
+            <a href="${canonicalX}" target="_blank" class="thread-link-btn">🔗 Read thread on X</a>
           </div>
 
           <!-- Right Action Toolbar -->
           <div class="action-toolbar">
             <div class="action-item" onclick="handleLike('${post.tweet_id}', this)">
               <div class="action-icon">❤️</div>
-              <span class="action-label" id="like-count-${post.tweet_id}">${post.app_likes || 0}</span>
+              <span class="action-label" id="like-count-${post.tweet_id}">${formatNumber(post.app_likes || 0)}</span>
             </div>
             <div class="action-item" onclick="handleDislike('${post.tweet_id}', this)">
               <div class="action-icon">👎</div>
-              <span class="action-label" id="dislike-count-${post.tweet_id}">${post.app_dislikes || 0}</span>
+              <span class="action-label" id="dislike-count-${post.tweet_id}">${formatNumber(post.app_dislikes || 0)}</span>
             </div>
             <div class="action-item" onclick="openComments('${post.tweet_id}')">
               <div class="action-icon">💬</div>
-              <span class="action-label" id="comm-count-${post.tweet_id}">${post.app_comments_count || 0}</span>
+              <span class="action-label" id="comm-count-${post.tweet_id}">${formatNumber(post.app_comments_count || 0)}</span>
             </div>
             <div class="action-item" onclick="handleShare('${post.tweet_id}')">
               <div class="action-icon">↗️</div>
               <span class="action-label">Share</span>
             </div>
-            <div class="action-item" onclick="handleSafety('${post.tweet_id}', '${escapeHtml(post.author)}')">
-              <div class="action-icon">🛡️</div>
+            
+            <!-- Safety Shield with Interactive Dropdown Sub-Buttons -->
+            <div class="action-item">
+              <div class="action-icon" onclick="toggleSafetyDropdown('${post.tweet_id}')">🛡️</div>
               <span class="action-label">Safety</span>
+              
+              <!-- Popover Menu with 2 clickable Sub-Buttons -->
+              <div class="safety-menu-popover" id="safety-pop-${post.tweet_id}">
+                <button class="safety-sub-btn report-btn" onclick="openReportModal('${post.tweet_id}')">
+                  <span>🚩</span>
+                  <span>Report Post</span>
+                </button>
+                <button class="safety-sub-btn block-btn" onclick="blockAuthor('${escapeHtml(post.author)}')">
+                  <span>🚫</span>
+                  <span>Block User</span>
+                </button>
+              </div>
             </div>
           </div>
         `;
 
         feed.appendChild(card);
       });
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num;
     }
 
     function escapeHtml(str) {
@@ -712,38 +967,40 @@
     function handleLike(tweetId, el) {
       const icon = el.querySelector('.action-icon');
       const label = el.querySelector('.action-label');
-      let count = parseInt(label.innerText) || 0;
+      let post = allPosts.find(p => p.tweet_id === tweetId);
+      if (!post) return;
 
       if (icon.classList.contains('liked')) {
         icon.classList.remove('liked');
-        count = Math.max(0, count - 1);
+        post.app_likes = Math.max(0, (post.app_likes || 1) - 1);
       } else {
         icon.classList.add('liked');
-        count += 1;
+        post.app_likes = (post.app_likes || 0) + 1;
       }
-      label.innerText = count;
+      label.innerText = formatNumber(post.app_likes);
 
       if (supabaseClient) {
-        supabaseClient.from('viral_tweets').update({ app_likes: count }).eq('tweet_id', tweetId);
+        supabaseClient.from('viral_tweets').update({ app_likes: post.app_likes }).eq('tweet_id', tweetId);
       }
     }
 
     function handleDislike(tweetId, el) {
       const icon = el.querySelector('.action-icon');
       const label = el.querySelector('.action-label');
-      let count = parseInt(label.innerText) || 0;
+      let post = allPosts.find(p => p.tweet_id === tweetId);
+      if (!post) return;
 
       if (icon.classList.contains('disliked')) {
         icon.classList.remove('disliked');
-        count = Math.max(0, count - 1);
+        post.app_dislikes = Math.max(0, (post.app_dislikes || 1) - 1);
       } else {
         icon.classList.add('disliked');
-        count += 1;
+        post.app_dislikes = (post.app_dislikes || 0) + 1;
       }
-      label.innerText = count;
+      label.innerText = formatNumber(post.app_dislikes);
 
       if (supabaseClient) {
-        supabaseClient.from('viral_tweets').update({ app_dislikes: count }).eq('tweet_id', tweetId);
+        supabaseClient.from('viral_tweets').update({ app_dislikes: post.app_dislikes }).eq('tweet_id', tweetId);
       }
     }
 
@@ -761,28 +1018,61 @@
       }
     }
 
-    function handleSafety(tweetId, author) {
-      const action = prompt(`Google Play UGC Moderation Options for @${author}:\n\nType 1 to Report Post\nType 2 to Block @${author}`);
-      if (action === '1' || action?.toLowerCase() === 'report') {
-        const reason = prompt('Select reason:\n1. Hate Speech\n2. Harassment\n3. Misinformation\n4. Explicit Content\n5. Spam');
-        if (reason) {
-          if (supabaseClient) {
-            supabaseClient.from('content_reports').insert({ tweet_id: tweetId, reason: reason, status: 'pending' });
-          }
-          alert('✅ Thank you. Content has been reported for review.');
+    // Safety Sub-Buttons Dropdown Logic
+    function toggleSafetyDropdown(tweetId) {
+      const allPopovers = document.querySelectorAll('.safety-menu-popover');
+      allPopovers.forEach(pop => {
+        if (pop.id !== `safety-pop-${tweetId}`) {
+          pop.classList.remove('open');
         }
-      } else if (action === '2' || action?.toLowerCase() === 'block') {
-        if (supabaseClient) {
-          supabaseClient.from('blocked_users').insert({ blocked_handle: author });
-        }
-        allPosts = allPosts.filter(p => p.author !== author);
-        renderFeed();
-        alert(`🚫 @${author} has been blocked and removed from your feed.`);
+      });
+      const targetPop = document.getElementById(`safety-pop-${tweetId}`);
+      if (targetPop) {
+        targetPop.classList.toggle('open');
       }
     }
 
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.action-item')) {
+        document.querySelectorAll('.safety-menu-popover').forEach(p => p.classList.remove('open'));
+      }
+    });
+
+    function openReportModal(tweetId) {
+      reportingTweetId = tweetId;
+      document.querySelectorAll('.safety-menu-popover').forEach(p => p.classList.remove('open'));
+      document.getElementById('reportModal').classList.add('open');
+      document.getElementById('commentsOverlay').classList.add('open');
+    }
+
+    function closeReportModal() {
+      document.getElementById('reportModal').classList.remove('open');
+      document.getElementById('commentsOverlay').classList.remove('open');
+    }
+
+    function submitReport(reason) {
+      closeReportModal();
+      if (supabaseClient && reportingTweetId) {
+        supabaseClient.from('content_reports').insert({ tweet_id: reportingTweetId, reason: reason, status: 'pending' });
+      }
+      alert(`✅ Post reported for "${reason}". Our moderation team will review it within 24 hours.`);
+    }
+
+    function blockAuthor(author) {
+      document.querySelectorAll('.safety-menu-popover').forEach(p => p.classList.remove('open'));
+      blockedAuthors.add((author || '').toLowerCase());
+
+      if (supabaseClient) {
+        supabaseClient.from('blocked_users').insert({ blocked_handle: author });
+      }
+
+      renderFeed();
+      alert(`🚫 @${author} has been blocked and removed from your feed.`);
+    }
+
     function showSafetyGuidelines() {
-      alert('🛡️ Quick Look Google Play UGC Guidelines:\n\n• Zero tolerance for hate speech, violence, harassment, or explicit material.\n• Instant post reporting and author blocking.\n• Moderation review queue within 24 hours.');
+      alert('🛡️ Quick Look Google Play UGC Guidelines:\n\n• Zero tolerance for hate speech, harassment, violence, or explicit material.\n• Tap the Safety Shield on any post to Report Content or Block Creators.\n• 24-hour moderation response queue.');
     }
 
     // Comments Sheet
@@ -791,7 +1081,7 @@
       document.getElementById('commentsOverlay').classList.add('open');
       document.getElementById('commentsSheet').classList.add('open');
       const list = document.getElementById('commentsList');
-      list.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">Loading comments...</div>';
+      list.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:20px;">Loading comments...</div>';
 
       let comments = localCommentsMap[tweetId] || [];
 
@@ -813,9 +1103,9 @@
       const list = document.getElementById('commentsList');
       if (comments.length === 0) {
         list.innerHTML = `
-          <div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">
+          <div style="text-align:center;padding:30px;color:var(--text-dim);">
             <div style="font-size:32px;margin-bottom:8px;">💬</div>
-            <div>No comments yet. Be the first to join the conversation!</div>
+            <div>No comments yet. Start the conversation!</div>
           </div>
         `;
       } else {
@@ -840,6 +1130,7 @@
     function closeComments() {
       document.getElementById('commentsOverlay').classList.remove('open');
       document.getElementById('commentsSheet').classList.remove('open');
+      closeReportModal();
     }
 
     async function submitComment() {
@@ -864,12 +1155,11 @@
         } catch (e) {}
       }
 
-      // Update counter on card
       const post = allPosts.find(p => p.tweet_id === activeTweetId);
       if (post) {
         post.app_comments_count = (post.app_comments_count || 0) + 1;
         const countEl = document.getElementById(`comm-count-${activeTweetId}`);
-        if (countEl) countEl.innerText = post.app_comments_count;
+        if (countEl) countEl.innerText = formatNumber(post.app_comments_count);
       }
 
       input.value = '';

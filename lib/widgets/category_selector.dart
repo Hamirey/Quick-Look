@@ -14,7 +14,7 @@ class CategorySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 38,
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -27,14 +27,14 @@ class CategorySelector extends StatelessWidget {
           return GestureDetector(
             onTap: () => onSelect(cat),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.black.withOpacity(0.45),
+                color: isSelected ? Colors.white : Colors.white.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isSelected ? Colors.white : Colors.white.withOpacity(0.2),
+                  color: isSelected ? Colors.white : Colors.white.withOpacity(0.14),
                   width: 1,
                 ),
                 boxShadow: isSelected
@@ -49,11 +49,12 @@ class CategorySelector extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  cat,
+                  cat == 'All' ? 'All News' : cat,
                   style: TextStyle(
-                    color: isSelected ? Colors.black : Colors.white,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 13,
+                    color: isSelected ? Colors.black : Colors.white.withOpacity(0.85),
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    fontSize: 12.5,
+                    letterSpacing: -0.2,
                   ),
                 ),
               ),
