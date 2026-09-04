@@ -62,4 +62,13 @@ class ViralTweet {
     final cleanAuthor = author.replaceAll('@', '').trim();
     return 'https://x.com/$cleanAuthor/status/$tweetId';
   }
+
+  String get sourceLabel {
+    final host = Uri.tryParse(canonicalXUrl)?.host.toLowerCase() ?? '';
+    if (host.contains('bsky.app')) return 'Bluesky';
+    if (host.contains('mastodon')) return 'Mastodon';
+    if (host.contains('news.google')) return 'Google News';
+    if (host.isNotEmpty) return host.replaceFirst('www.', '');
+    return 'Source';
+  }
 }

@@ -2,8 +2,8 @@ name: Viral News Auto Scraper
 
 on:
   schedule:
-    # Run every 6 hours at minute 0 (00:00, 06:00, 12:00, 18:00 UTC)
-    - cron: "0 */6 * * *"
+    # Refresh hourly. GitHub may delay scheduled jobs during high load.
+    - cron: "0 * * * *"
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
 
 jobs:

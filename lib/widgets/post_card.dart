@@ -46,23 +46,26 @@ class _PostCardState extends State<PostCard> {
         // ----------------------------------------------------------------------
         Container(
           color: const Color(0xFF06070A),
-          child: widget.tweet.mediaUrl != null && widget.tweet.mediaUrl!.isNotEmpty
-              ? Center(
-                  child: CachedNetworkImage(
-                    imageUrl: widget.tweet.mediaUrl!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    placeholder: (context, url) => Container(
-                      color: const Color(0xFF141720),
-                      child: const Center(
-                        child: CircularProgressIndicator(color: Colors.white24, strokeWidth: 2),
+          child:
+              widget.tweet.mediaUrl != null && widget.tweet.mediaUrl!.isNotEmpty
+                  ? Center(
+                      child: CachedNetworkImage(
+                        imageUrl: widget.tweet.mediaUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        placeholder: (context, url) => Container(
+                          color: const Color(0xFF141720),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                                color: Colors.white24, strokeWidth: 2),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            _buildFallbackBackground(),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => _buildFallbackBackground(),
-                  ),
-                )
-              : _buildFallbackBackground(),
+                    )
+                  : _buildFallbackBackground(),
         ),
 
         // ----------------------------------------------------------------------
@@ -89,7 +92,7 @@ class _PostCardState extends State<PostCard> {
         ),
 
         // ----------------------------------------------------------------------
-        // 3. TAP TO OPEN X APP OR BROWSER
+        // 3. TAP TO OPEN THE ORIGINAL SOURCE
         // ----------------------------------------------------------------------
         Positioned.fill(
           child: Material(
@@ -115,11 +118,13 @@ class _PostCardState extends State<PostCard> {
             children: [
               // Minimalist Unified Category Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.14),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.2), width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -171,14 +176,22 @@ class _PostCardState extends State<PostCard> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Icon(Icons.verified, color: Color(0xFF1D9BF0), size: 15),
+                    Text(
+                      widget.tweet.sourceLabel,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 6),
 
               // Caption
-              if (widget.tweet.caption != null && widget.tweet.caption!.isNotEmpty)
+              if (widget.tweet.caption != null &&
+                  widget.tweet.caption!.isNotEmpty)
                 GestureDetector(
                   onTap: () => setState(() => _isExpanded = !_isExpanded),
                   child: AnimatedCrossFade(
@@ -196,7 +209,7 @@ class _PostCardState extends State<PostCard> {
                         height: 1.4,
                         shadows: const [
                           Shadow(
-                            color: Colors.black80,
+                            color: Color.fromRGBO(0, 0, 0, 0.8),
                             offset: Offset(0, 1),
                             blurRadius: 4,
                           ),
@@ -211,7 +224,7 @@ class _PostCardState extends State<PostCard> {
                         height: 1.4,
                         shadows: const [
                           Shadow(
-                            color: Colors.black80,
+                            color: Color.fromRGBO(0, 0, 0, 0.8),
                             offset: Offset(0, 1),
                             blurRadius: 4,
                           ),
@@ -228,21 +241,23 @@ class _PostCardState extends State<PostCard> {
                 onTap: _launchCanonicalPost,
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.white.withOpacity(0.15)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.link_rounded, color: Colors.white70, size: 13),
-                      SizedBox(width: 4),
+                      const Icon(Icons.link_rounded,
+                          color: Colors.white70, size: 13),
+                      const SizedBox(width: 4),
                       Text(
-                        'Read thread on X',
-                        style: TextStyle(
-                          color: Colors.white90,
+                        'Open ${widget.tweet.sourceLabel} article/post',
+                        style: const TextStyle(
+                          color: Color.fromRGBO(255, 255, 255, 0.9),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),

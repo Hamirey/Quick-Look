@@ -1,13 +1,15 @@
 """
-Quick Look — Viral Nigerian News Scraper
+Quick Look — Multi-source Nigerian News Scraper
 =========================================
-Fetches trending Nigerian content from multiple public RSS/API sources
-and upserts into Supabase `viral_tweets` table.
+Fetches trending Nigerian content from public RSS and open social APIs,
+then upserts normalized records into Supabase `viral_tweets` table.
 
-Data sources (in priority order):
-1. Nitter RSS feeds for curated Nigerian accounts
-2. Google News RSS for Nigerian trending topics  
-3. Rich baseline seed dataset (guaranteed fallback)
+Data sources:
+1. Curated Nigerian publisher RSS feeds
+2. Google News RSS searches
+3. Bluesky's public search API
+4. Mastodon's public timeline API
+5. Rich baseline seed dataset (fallback)
 
 Runs every 6 hours via GitHub Actions (.github/workflows/daily_scraper.yml).
 """
@@ -20,6 +22,7 @@ import hashlib
 import logging
 from datetime import datetime, timezone, timedelta
 from urllib.parse import quote_plus
+from html import unescape
 from dotenv import load_dotenv
 
 # Configure logging
@@ -77,6 +80,39 @@ GOOGLE_NEWS_QUERIES = {
     "Tech": "Nigeria fintech startup Lagos tech unicorn",
     "Politics": "Nigeria politics government Tinubu policy announcement",
 }
+
+# Publisher feeds are public and do not require API credentials. The original
+# article URL is stored in x_url so the existing app can open it.
+RSS_FEEDS = {
+    "Afrobeats": [
+        ("NotjustOk", "https://notjustok.com/feed/"),
+        ("BellaNaija", "https://www.bellanaija.com/feed/"),
+    ],
+    "Nollywood": [
+        ("BellaNaija", "https://www.bellanaija.com/feed/"),
+        ("Pulse Nigeria", "https://www.pulse.ng/entertainment/movies/rss"),
+    ],
+    "Tech": [
+        ("TechCabal", "https://techcabal.com/feed/"),
+        ("Techpoint Africa", "https://techpoint.africa/feed/"),
+    ],
+    "Politics": [
+        ("Premium Times", "https://www.premiumtimesng.com/feed"),
+        ("The Guardian Nigeria", "https://guardian.ng/feed/"),
+    ],
+}
+
+BLUESKY_QUERIES = {
+    "Afrobeats": "Nigeria Afrobeats",
+    "Nollywood": "Nollywood Nigeria",
+    "Tech": "Nigeria technology startup",
+    "Politics": "Nigeria politics",
+}
+
+MASTODON_INSTANCES = [
+    "https://mastodon.social",
+    "https://mastodon.online",
+]
 
 # ──────────────────────────────────────────────────────────────────────────────
 # RICH SEED DATASET — 24 diverse, realistic viral Nigerian posts
@@ -396,6 +432,160 @@ def fetch_google_news_rss(category: str, query: str, max_items: int = 8) -> list
     return results
 
 
+def _fetch_json(url: str) -> object:
+    import urllib.request
+
+    request = urllib.request.Request(url, headers={
+        "Accept": "application/json",
+        "User-Agent": "QuickLook/1.0 (public-feed-aggregator)",
+    })
+    with urllib.request.urlopen(request, timeout=15) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _strip_html(value: str) -> str:
+    return re.sub(r"<[^>]+>", "", unescape(value or "")).strip()
+
+
+def fetch_publisher_rss(
+    category: str,
+    source: str,
+    feed_url: str,
+    max_items: int = 6,
+) -> list:
+    """Fetch publisher articles while retaining each article's canonical URL."""
+    import urllib.request
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+
+    results = []
+    try:
+        request = urllib.request.Request(feed_url, headers={
+            "User-Agent": "QuickLook/1.0 (public-feed-aggregator)",
+        })
+        with urllib.request.urlopen(request, timeout=15) as response:
+            root = ET.fromstring(response.read())
+
+        for item in root.findall(".//item")[:max_items]:
+            title = _strip_html(item.findtext("title", ""))
+            link = item.findtext("link", "").strip()
+            if not title or not link:
+                continue
+
+            published = item.findtext("pubDate", "")
+            try:
+                created_at = parsedate_to_datetime(published).astimezone(
+                    timezone.utc
+                ).isoformat()
+            except (TypeError, ValueError, OverflowError):
+                created_at = datetime.now(timezone.utc).isoformat()
+
+            results.append({
+                "tweet_id": _make_id(f"rss-{link}"),
+                "author": source,
+                "caption": title,
+                "media_url": None,
+                "x_url": link,
+                "category": category,
+                "created_at": created_at,
+            })
+    except Exception as e:
+        logger.warning(f"[{category}] {source} RSS error: {e}")
+
+    if results:
+        logger.info(f"[{category}] {source}: fetched {len(results)} articles")
+    return results
+
+
+def fetch_bluesky_posts(category: str, query: str, max_items: int = 8) -> list:
+    """Fetch public Bluesky posts without authentication."""
+    endpoint = (
+        "https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts"
+        f"?q={quote_plus(query)}&limit={max_items}&sort=latest"
+    )
+    results = []
+    try:
+        payload = _fetch_json(endpoint)
+        for post in payload.get("posts", []):
+            record = post.get("record", {})
+            author = post.get("author", {})
+            uri = post.get("uri", "")
+            rkey = uri.rsplit("/", 1)[-1]
+            handle = author.get("handle", "Bluesky")
+            if not record.get("text") or not rkey:
+                continue
+            results.append({
+                "tweet_id": _make_id(f"bluesky-{uri}"),
+                "author": f"{handle} (Bluesky)",
+                "caption": record["text"],
+                "media_url": None,
+                "x_url": f"https://bsky.app/profile/{handle}/post/{rkey}",
+                "category": category,
+                "created_at": record.get(
+                    "createdAt", datetime.now(timezone.utc).isoformat()
+                ),
+            })
+    except Exception as e:
+        logger.warning(f"[{category}] Bluesky API error: {e}")
+
+    if results:
+        logger.info(f"[{category}] Bluesky: fetched {len(results)} posts")
+    return results
+
+
+def fetch_mastodon_posts(max_items: int = 24) -> list:
+    """Fetch public posts from Mastodon instances without authentication."""
+    results = []
+    for instance in MASTODON_INSTANCES:
+        try:
+            payload = _fetch_json(
+                f"{instance}/api/v1/timelines/public?limit={max_items}"
+            )
+            for status in payload:
+                account = status.get("account", {})
+                status_url = status.get("url", "")
+                text = _strip_html(status.get("content", ""))
+                if not status_url or not text:
+                    continue
+                normalized_text = text.lower()
+                if any(
+                    word in normalized_text
+                    for word in ("music", "afrobeats", "wizkid", "davido", "burna")
+                ):
+                    category = "Afrobeats"
+                elif any(
+                    word in normalized_text
+                    for word in ("film", "movie", "nollywood", "actor", "actress")
+                ):
+                    category = "Nollywood"
+                elif any(
+                    word in normalized_text
+                    for word in ("tech", "startup", "software", "ai", "fintech")
+                ):
+                    category = "Tech"
+                else:
+                    category = "Politics"
+                results.append({
+                    "tweet_id": _make_id(f"mastodon-{status_url}"),
+                    "author": f"@{account.get('acct', 'Mastodon')} (Mastodon)",
+                    "caption": text,
+                    "media_url": None,
+                    "x_url": status_url,
+                    "category": category,
+                    "created_at": status.get(
+                        "created_at", datetime.now(timezone.utc).isoformat()
+                    ),
+                })
+            logger.info(
+                f"[{category}] Mastodon ({instance}): "
+                f"fetched {len(payload)} public posts"
+            )
+            break
+        except Exception as e:
+            logger.warning(f"Mastodon {instance} error: {e}")
+    return results
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # UPSERT TO SUPABASE
 # ──────────────────────────────────────────────────────────────────────────────
@@ -458,16 +648,28 @@ def run():
 
     all_scraped = []
 
-    # Phase 1: Try Google News RSS (reliable, no browser needed)
-    logger.info("\n📡 Phase 1: Fetching from Google News RSS...")
+    # Phase 1: Fetch publisher and Google News RSS feeds.
+    logger.info("\n📡 Phase 1: Fetching RSS sources...")
+    for category, feeds in RSS_FEEDS.items():
+        for source, feed_url in feeds:
+            all_scraped.extend(
+                fetch_publisher_rss(category, source, feed_url, max_items=6)
+            )
     for category, query in GOOGLE_NEWS_QUERIES.items():
         articles = fetch_google_news_rss(category, query, max_items=6)
         all_scraped.extend(articles)
 
-    logger.info(f"📡 Google News RSS total: {len(all_scraped)} articles")
+    logger.info(f"📡 RSS total: {len(all_scraped)} articles")
 
-    # Phase 2: Combine with rich seed dataset
-    logger.info(f"\n🌱 Phase 2: Merging with {len(SEED_VIRAL_POSTS)} seed posts...")
+    # Phase 2: Fetch open social posts without credentials.
+    logger.info("\n🌐 Phase 2: Fetching open social APIs...")
+    for category, query in BLUESKY_QUERIES.items():
+        all_scraped.extend(fetch_bluesky_posts(category, query, max_items=8))
+    all_scraped.extend(fetch_mastodon_posts(max_items=24))
+    logger.info(f"🌐 Total external items: {len(all_scraped)}")
+
+    # Phase 3: Combine with rich seed dataset.
+    logger.info(f"\n🌱 Phase 3: Merging with {len(SEED_VIRAL_POSTS)} seed posts...")
 
     # Seed posts go first, then scraped (so seed fills gaps, scraped overwrites with fresh data)
     combined = list({p["tweet_id"]: p for p in (SEED_VIRAL_POSTS + all_scraped)}.values())
@@ -477,8 +679,8 @@ def run():
         count = sum(1 for p in combined if p.get("category") == cat)
         logger.info(f"  • {cat}: {count} posts")
 
-    # Phase 3: Upsert to Supabase
-    logger.info(f"\n💾 Phase 3: Upserting to Supabase...")
+    # Phase 4: Upsert to Supabase.
+    logger.info(f"\n💾 Phase 4: Upserting to Supabase...")
     upserted = upsert_to_supabase(combined)
 
     logger.info(f"\n{'=' * 60}")
